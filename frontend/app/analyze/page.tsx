@@ -88,7 +88,7 @@ export default function AnalyzePage() {
     const startTime = Date.now()
 
     const updateLoading = () => {
-      const elapsedTime = (Date.now() - startTime) / 500 // time in seconds
+      const elapsedTime = (Date.now() - startTime) / 1000 // time in seconds
       const progress = Math.min(100, 100 * (1 - Math.exp(-elapsedTime / 30))) // exponential progress
       setLoadingProgress(progress)
       setLoadingMessage(messages[messageIndex])
