@@ -104,7 +104,7 @@ export default function AnalyzePage() {
       })
 
       // Replace this with your actual API endpoint
-      const response = await fetch('/api/analyze', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/analyze`, {
         method: 'POST',
         body: formData,
       })
