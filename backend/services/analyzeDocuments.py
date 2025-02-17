@@ -210,7 +210,7 @@ def analyzeDocuments(documents):
     for document in documents:
         messages.append({
             "role": "user",
-            "content": f"Document Name: {document["name"]}\n\n{document["content"]}"
+            "content": f"Document Name: {document['name']}\n\n{document['content']}"
         })
 
     response = client.beta.chat.completions.parse(
