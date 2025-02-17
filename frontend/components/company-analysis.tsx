@@ -126,7 +126,7 @@ export function CompanyAnalysis({ analysisResult, onNewAnalysis }: CompanyAnalys
               <p className="text-lg">{formatCurrency(analysisResult.financial_highlights.total_liabilities)}</p>
             </div>
             <div>
-              <p className="text-sm font-medium">Stockholders' Equity</p>
+              <p className="text-sm font-medium">Stockholders&apos; Equity</p>
               <p className="text-lg">{formatCurrency(analysisResult.financial_highlights.stockholders_equity)}</p>
             </div>
           </div>

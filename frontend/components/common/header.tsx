@@ -12,21 +12,21 @@ export function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center space-x-8">
-          <a
+          <Link
             href="/#features"
             className="text-sm font-medium hover:text-primary"
           >
             Features
-          </a>
-          <a href="/#process" className="text-sm font-medium hover:text-primary">
+          </Link>
+          <Link href="/#process" className="text-sm font-medium hover:text-primary">
             Process
-          </a>
-          <a
+          </Link>
+          <Link
             href="/#use-cases"
             className="text-sm font-medium hover:text-primary"
           >
             Use Cases
-          </a>
+          </Link>
         </nav>
 
         <div className="flex items-center space-x-4">
