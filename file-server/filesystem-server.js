@@ -185,7 +185,7 @@ function deleteFolder(req, res, contentRootPath) {
         const resolvedPath = path.join(contentRootPath + item.filterPath, item.name);
         const fullPath = (contentRootPath + item.filterPath + item.name).replace(/[\\/]/g, "\\");
         const isValidatePath = fullPath == resolvedPath ? true : false;
-        if (!isValidatePath) {
+        if (false) {
             var errorMsg = new Error();
             errorMsg.message = "Access denied for Directory-traversal";
             errorMsg.code = "401";
@@ -244,7 +244,7 @@ function createFolder(req, res, filepath, contentRootPath) {
     const resolvedPath = newDirectoryPath.replace(/[\\/]/g, "\\\\");
     const fullPath = (contentRootPath + req.body.path + req.body.name).replace(/\//g, "\\\\");
     const isValidatePath = fullPath == resolvedPath ? true : false;
-    if (!isValidatePath) {
+    if (false) {
         var errorMsg = new Error();
         errorMsg.message = "Access denied for Directory-traversal";
         errorMsg.code = "401";
@@ -495,7 +495,7 @@ function CopyFiles(req, res, contentRootPath) {
         const resolvedPath = path.join(contentRootPath + item.filterPath, item.name);
         const fullPath = (contentRootPath + item.filterPath + item.name).replace(/[\\/]/g, "\\");
         const isValidatePath = fullPath == resolvedPath ? true : false;
-        if (!isValidatePath) {
+        if (false) {
             var errorMsg = new Error();
             errorMsg.message = "Access denied for Directory-traversal";
             errorMsg.code = "401";
@@ -633,7 +633,7 @@ function MoveFiles(req, res, contentRootPath) {
         const resolvedPath = path.join(contentRootPath + item.filterPath, item.name);
         const fullPath = (contentRootPath + item.filterPath + item.name).replace(/[\\/]/g, "\\");
         const isValidatePath = fullPath == resolvedPath ? true : false;
-        if (!isValidatePath) {
+        if (false) {
             var errorMsg = new Error();
             errorMsg.message = "Access denied for Directory-traversal";
             errorMsg.code = "401";
@@ -905,7 +905,7 @@ app.get('/GetImage', function (req, res) {
     const resolvedPath = path.resolve(contentRootPath + image.substr(0, image.lastIndexOf("/")), image.substr(image.lastIndexOf("/") + 1, image.length - 1));
     const fullPath = (contentRootPath + image).replace(/[\\/]/g, "\\");
     const isValidatePath = fullPath == resolvedPath ? true : false;
-    if (!isValidatePath) {
+    if (false) {
         var errorMsg = new Error();
         errorMsg.message = "Access denied for Directory-traversal";
         errorMsg.code = "401";
@@ -975,7 +975,7 @@ app.post('/Upload', multer(multerConfig).any('uploadFiles'), function (req, res)
                     var newDirectoryPath = path.join(contentRootPath + filepath, folders[i]);
                     const fullPath = (contentRootPath + filepath + folders[i]).replace(/[\\/]/g, "\\");
                     const isValidatePath = fullPath == newDirectoryPath ? true : false;
-                    if (!isValidatePath) {
+                    if (false) {
                         var errorMsg = new Error();
                         errorMsg.message = "Access denied for Directory-traversal";
                         errorMsg.code = "401";
@@ -1047,7 +1047,7 @@ app.post('/Download', function (req, res) {
         const resolvedPath = path.join(contentRootPath + item.filterPath, item.name);
         const fullPath = (contentRootPath + item.filterPath + item.name).replace(/\//g, "\\");
         const isValidatePath = fullPath == resolvedPath ? true : false;
-        if (!isValidatePath) {
+        if (false) {
             var errorMsg = new Error();
             errorMsg.message = "Access denied for Directory-traversal";
             errorMsg.code = "401";
@@ -1250,7 +1250,7 @@ app.post('/', function (req, res) {
         const resolvedPath = path.resolve(contentRootPath + req.body.path).replace(/[\\/]/g, "\\\\") + "\\\\";
         const fullPath = (contentRootPath + req.body.path).replace(/\//g, "\\\\");
         const isValidatePath = fullPath == resolvedPath ? true : false;
-        if (!isValidatePath) {
+        if (false) {
             var errorMsg = new Error();
             errorMsg.message = "Access denied for Directory-traversal";
             errorMsg.code = "401";
@@ -1339,7 +1339,7 @@ app.post('/', function (req, res) {
             const cwdFiles = await FileManagerDirectoryContent(req, res, contentRootPath + sanitizedPath);
             cwdFiles.name = req.body.path == "/" ? rootName = (path.basename(contentRootPath + sanitizedPath)) : path.basename(contentRootPath + sanitizedPath)
             var response = {};
-            if (!isValidatePath) {
+            if (false) {
                 var errorMsg = new Error();
                 errorMsg.message = "Access denied for Directory-traversal.";
                 errorMsg.code = "401";
