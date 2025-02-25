@@ -38,7 +38,7 @@ def add_dict_to_doc(document, data, indent=0):
             p_value = document.add_paragraph()
             p_value.paragraph_format.left_indent = Pt((indent+1) * 20)
             # Convert None to string "None"
-            text = str(value) if value is not None else "None"
+            text = str(value) if value is not None else "Not Found"
             p_value.add_run(text)
 
 def save_doc_to_docx(doc_data, filename=DEFAULT_DOCX_FILENAME):

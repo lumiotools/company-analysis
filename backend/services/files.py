@@ -40,7 +40,7 @@ def traverse_path(path):
 
 def listFiles():
     tree = traverse_path("/")
-    print(json.dumps(tree, indent=2))
+    # print(json.dumps(tree, indent=2))
     return tree
 
 # Function to find "Alpine VC" files from the directory tree
@@ -71,18 +71,58 @@ def find_alpine_vc_files(files, current_path=""):
                 alpine_files.extend(find_alpine_vc_files(item.get("files", []), new_path))
     return alpine_files
 
-def download_files(file_tuples):
+
+def get_all_files(files, current_path=""):
+    """
+    Recursively search the directory tree to build full relative paths
+    for all files and return them in an array with metadata.
+    Each element in the returned list is a tuple: (relative_path, metadata)
+    """
+    all_files = []
+    for item in files:
+        if isinstance(item, dict):
+            dir_name = item.get("directory")
+            new_path = f"{current_path}/{dir_name}" if current_path else f"/{dir_name}"
+            all_files.extend(get_all_files(item.get("files", []), new_path))
+        elif isinstance(item, str):
+            file_relative_path = f"{current_path}/{item}"
+            metadata = {
+                "name": item,
+                "isFile": True,
+                "filterPath": current_path + "/",
+                "type": os.path.splitext(item)[1]
+            }
+            all_files.append((file_relative_path, metadata))
+    return all_files
+
+def download_files(file_tuples, folder_name):
     """
     For each file tuple (relative_path, metadata), send a POST request with
     form-encoded data to the /Download endpoint.
-    Save the downloaded file in the UPLOAD_DIR directory.
+    
+    Creates a folder named after the provided folder_name (converted to a string)
+    under UPLOAD_DIR and replicates the source folder hierarchy when saving the files.
     """
     downloaded_files = []
+    
+    # Convert folder_name (UUID) to string and create the base folder.
+    folder_name_str = str(folder_name)
+    base_folder = os.path.join(UPLOAD_DIR, folder_name_str)
+    os.makedirs(base_folder, exist_ok=True)
+    
     for rel_path, metadata in file_tuples:
         # Split into directory and filename.
         directory, filename = os.path.split(rel_path)
         if not directory.endswith('/'):
             directory += '/'
+        
+        # Replicate the source hierarchy:
+        # Remove any leading slash from the directory and join with base_folder.
+        relative_dir = directory.lstrip('/')
+        dest_dir = os.path.join(base_folder, relative_dir)
+        os.makedirs(dest_dir, exist_ok=True)
+        
+        # Build payload as before.
         payload_dict = {
             "action": "download",
             "path": directory,
@@ -99,9 +139,11 @@ def download_files(file_tuples):
         }
         download_url = fileServer + "/Download"
         print("Downloading from:", download_url, "with payload:", payload)
+        
         response = requests.post(download_url, data=payload, headers=headers)
         if response.status_code == 200:
-            file_path = os.path.join(UPLOAD_DIR, filename)
+            # Save the downloaded file in the proper subdirectory.
+            file_path = os.path.join(dest_dir, filename)
             with open(file_path, 'wb') as f:
                 f.write(response.content)
             downloaded_files.append(file_path)
@@ -109,7 +151,6 @@ def download_files(file_tuples):
         else:
             print(f"Failed to download {filename} from {download_url}: {response.status_code}")
     return downloaded_files
-
 
 
 

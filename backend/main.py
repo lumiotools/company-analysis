@@ -1,8 +1,12 @@
+import uuid
 from fastapi import FastAPI, File, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List
-from services.files import download_files, find_alpine_vc_files, listFiles
+from services.comgineExcelAnalysis import combine_excel_analyses
+from services.analyzer import process_hierarchical_data
+from services.saveJosn import write_extracted_content_json
+from services.files import download_files, find_alpine_vc_files, listFiles, get_all_files
 from services.extractContent import extractContent
 from services.analyzeDocuments import analyzeDocuments
 import os
@@ -28,37 +32,49 @@ app.add_middleware(
 async def analyze_company():
     try:
         # Get the list of files from the server
-        files = listFiles()  # Get the list of all files
+        # files = listFiles()  # Get the list of all files
         # print("files",files)
-        alpine_vc_file_urls = find_alpine_vc_files(files)  # Find files under 'Alpine VC'
+        # all_file_urls = get_all_files(files)  # Find files under 'Alpine VC'
 
-        print("Alpine VC files to download:", alpine_vc_file_urls)
+        # print("All files to download:", all_file_urls)
+        # folder_name=uuid.uuid4()
+        folder_name="89eb76fb-1954-4053-abd3-3da48633136d"
 
         # Download the files
-        downloaded_files = download_files(alpine_vc_file_urls)
+        # downloaded_files = download_files(all_file_urls,folder_name)
 
-        print("Downloaded files:", downloaded_files)
-        downloaded_files=['temp_uploads/Alpine VC Overview.pdf', 'temp_uploads/Ed Suh Deal Sheet (Current & Prior) (1).xlsx']
+        # print("Downloaded files:", downloaded_files)
+        # downloaded_files=['temp_uploads/Alpine VC Overview.pdf', 'temp_uploads/Ed Suh Deal Sheet (Current & Prior) (1).xlsx']
 
-        # Here, you would extract content from the downloaded files
-        extracted_content = []
-        for file_path in downloaded_files:
-            content = extractContent(file_path)  # Assuming extractContent function is implemented
-            extracted_content.append({"name": os.path.basename(file_path), "content": content})
+        # # Here, you would extract content from the downloaded files
+        # extracted_content = []
+        # for file_path in downloaded_files:
+        #     content = extractContent(file_path)  # Assuming extractContent function is implemented
+        #     extracted_content.append({"name": os.path.basename(file_path), "content": content})
+        # result_location = write_extracted_content_json(folder_name)
+        # print("Result JSON file written to:", result_location)
+        result_location="temp_uploads/89eb76fb-1954-4053-abd3-3da48633136d/result.json"
         
-        print("extracted content",extracted_content)
+        # print("extracted content",extracted_content)
 
 
-        # Analyze the extracted content
-        excel_analysis = analyzeDocuments(extracted_content,system_prompt_excel) 
-        doc_analysis = analyzeDocuments(extracted_content,system_prompt_doc)
+        # # Analyze the extracted content
+        # excel_analysis = analyzeDocuments(extracted_content,system_prompt_excel) 
+        # doc_analysis = analyzeDocuments(extracted_content,system_prompt_doc)
+
+        # final_result, final_path = process_hierarchical_data(result_location, system_prompt_excel, system_prompt_doc)
+        # print("final result", final_result,"final path",final_path)
+
+        final_result_location="temp_uploads/89eb76fb-1954-4053-abd3-3da48633136d/final_result.json"
+        combinedExcelAnalysis=combine_excel_analyses(final_result_location)
+
         
-        
-        save_to_excel(excel_analysis)
-        save_doc_to_docx(doc_analysis)
+        # save_to_excel(excel_analysis)
+        # save_doc_to_docx(doc_analysis)
 
 
         # Return the analysis result
+        return JSONResponse(content={"success": True,"analysis":combinedExcelAnalysis})
         return JSONResponse(content={"success": True, "doc":doc_analysis,"excel":excel_analysis}, status_code=200)
 
     except Exception as e:

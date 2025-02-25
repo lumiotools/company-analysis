@@ -78,7 +78,7 @@ def analyzeDocuments(documents, prompt):
     for document in documents:
         messages.append({
             "role": "user",
-            "content": f"Input Document Name: {document['name']}\n\n{document['content']}"
+            "content": f"Input Document : {document}"
         })
     
     # Using the client object with the beta method as before
