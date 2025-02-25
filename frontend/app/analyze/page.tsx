@@ -82,7 +82,11 @@ export default function AnalyzePage() {
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (files.length === 0) return;
+    console.log("button clicked");
+    if (files.length === 0) {
+      console.log("returned");
+      return;
+    }
 
     setIsLoading(true);
     setLoadingProgress(0);
@@ -161,7 +165,7 @@ export default function AnalyzePage() {
           <Card className="max-w-screen-xl mx-auto">
             <CardContent className="pt-6 space-y-4 flex flex-col">
               <FileManagerComponent
-              className="rounded-lg overflow-hidden"
+                className="rounded-lg overflow-hidden"
                 id="overview_file"
                 ajaxSettings={{
                   url: hostUrl,
@@ -222,49 +226,11 @@ export default function AnalyzePage() {
               >
                 <Inject services={[NavigationPane, DetailsView, Toolbar]} />
               </FileManagerComponent>
-              <Button className="ml-auto" disabled>Start Analysis</Button>
-              {/* <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="flex items-center justify-center w-full">
-                  <label
-                    htmlFor="dropzone-file"
-                    className="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100"
-                  >
-                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                      <Upload className="w-10 h-10 mb-3 text-gray-400" />
-                      <p className="mb-2 text-sm text-gray-500">
-                        <span className="font-semibold">Click to upload</span> or drag and drop
-                      </p>
-                      <p className="text-xs text-gray-500">PDF, DOC, DOCX or TXT (MAX. 20MB per file)</p>
-                    </div>
-                    <Input
-                      id="dropzone-file"
-                      type="file"
-                      className="hidden"
-                      onChange={handleFileChange}
-                      accept=".pdf,.doc,.docx,.txt"
-                      multiple
-                    />
-                  </label>
-                </div>
-                {files.length > 0 && (
-                  <div className="mt-4">
-                    <h3 className="text-sm font-medium text-gray-900">Selected files:</h3>
-                    <ul className="mt-2 divide-y divide-gray-200">
-                      {files.map((file, index) => (
-                        <li key={index} className="py-2 flex justify-between items-center">
-                          <span className="text-sm text-gray-500">{file.name}</span>
-                          <Button type="button" variant="ghost" size="sm" onClick={() => removeFile(index)}>
-                            <X className="h-4 w-4" />
-                          </Button>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                <Button type="submit" className="w-full" disabled={files.length === 0 || isLoading}>
+              <form onSubmit={handleSubmit}>
+                <Button className="mx-auto" onClick={handleSubmit}>
                   Start Analysis
                 </Button>
-              </form> */}
+              </form>
             </CardContent>
           </Card>
         ) : (
