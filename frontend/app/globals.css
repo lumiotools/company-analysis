@@ -2,6 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+/* refer the styles from package folder */
+@import '../node_modules/@syncfusion/ej2-base/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-icons/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-inputs/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-popups/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-buttons/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-splitbuttons/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-navigations/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-layouts/styles/bootstrap5.css';
+@import '../node_modules/@syncfusion/ej2-grids/styles/bootstrap5.css';
+@import "../node_modules/@syncfusion/ej2-react-filemanager/styles/bootstrap5.css";
+
 @layer base {
     :root {
       --background: 0 0% 100%;
