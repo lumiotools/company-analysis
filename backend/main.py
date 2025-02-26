@@ -48,7 +48,7 @@ async def analyze_company():
         downloaded_files = download_files(all_file_urls,folder_name)
 
         print("Downloaded files:", downloaded_files)
-        folder_name = str(folder_name)
+        str_folder_name = str(folder_name)
         # downloaded_files=['temp_uploads/Alpine VC Overview.pdf', 'temp_uploads/Ed Suh Deal Sheet (Current & Prior) (1).xlsx']
 
         # # Here, you would extract content from the downloaded files
@@ -57,7 +57,7 @@ async def analyze_company():
         #     content = extractContent(file_path)  # Assuming extractContent function is implemented
         #     extracted_content.append({"name": os.path.basename(file_path), "content": content})
 
-        result_location = write_extracted_content_json(folder_name)
+        result_location = write_extracted_content_json(str_folder_name)
         # print("Result JSON file written to:", result_location)
         # result_location="temp_uploads/89eb76fb-1954-4053-abd3-3da48633136d/result.json"
         
@@ -74,7 +74,7 @@ async def analyze_company():
         # final_result_location = f"temp_uploads/{folder_name}/final_result.json"
         combinedExcelAnalysis=combine_excel_analyses(final_result_location)
         combinedDocAnalysis=combine_doc_analyses(final_result_location)
-        saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis,folder_name)
+        saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis,str_folder_name)
         # print("saved files",saved_files)
         # saved_files=['temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/8-Bit Capital.docx', 'temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/Draper Cygnus.docx', 'temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/Alpine VC.docx', 'temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/Feld Ventures.docx']
         create_folder_and_upload_files(saved_files, 'docOutput')
