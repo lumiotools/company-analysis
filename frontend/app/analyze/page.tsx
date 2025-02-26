@@ -66,7 +66,100 @@ interface AnalysisResult {
     comments: string;
   };
 }
-type FundData = Record<string, string | number | null>;
+
+// Updated interface for the API response
+// Interface for fund analysis document structure
+interface FundAnalysis {
+  "GENERAL FUND INFORMATION": {
+    "Fund Name": string;
+    "Fund Location": string;
+    "Fund Website URL": string;
+  };
+  "PRIMARY CONTACT INFORMATION": {
+    "Primary Contact Name": string;
+    "Primary Contact Position": string;
+    "Primary Contact Phone Number": string | null;
+    "Primary Contact Email": string;
+    "Primary Contact LinkedIn URL": string;
+  };
+  "FUND-SPECIFIC DETAILS (CURRENT FUND)": {
+    "Fundraising Status & Timing": {
+      "Currently Fundraising": boolean;
+      "Current Fund Number": string;
+      "Fund Size (Target & Cap)": string;
+      "Already Closed / Committed Amount": string;
+      "First Close Date": string;
+      "Expected Final Close Date": string;
+      "Minimum LP Commitment": string;
+      "Capital Call Mechanics": string;
+    };
+    "Fees, Terms, and Economics": {
+      "Management Fee Percentage": number;
+      "Carried Interest Percentage": number;
+      "Total AUM (for the GP)": string;
+    };
+    "Sector & Stage Focus": {
+      "Sector Preference / Focus": string;
+      "Stage Focus": string;
+      "Impact Investing": boolean;
+    };
+    "Investment Strategy": {
+      "Preferred Investment Stage": string;
+      "Check Size Range": string;
+      "Yearly Investment Cadence": number;
+      "Target Ownership Percentage": number;
+      "Follow-On Reserves": boolean;
+      "Active Investment Period": string;
+      "Portfolio Company Investment Forecast": string;
+      "Target Valuations": string;
+    };
+    "Governance & Participation": {
+      "Board Seat Requests": boolean;
+      "Lead Investor Frequency": boolean;
+      "LP List": string[];
+    };
+  };
+  "TRACK RECORD (PORTFOLIO COMPANIES)": Array<{
+    "Portfolio Company Name"?: string;
+    "Company URL"?: string;
+    "Investment Fund/Source"?: string;
+    "Amount Invested"?: string;
+    "Post-Money Valuation"?: string;
+    "Stage/Round"?: string;
+    "Form of Financing"?: string;
+    "Unrealized Value"?: string;
+    "Distributed Value"?: string;
+    "Total Value"?: string;
+    DPI?: number;
+    MOIC?: number;
+    IRR?: number;
+    "Highlighted Co-Investors"?: string[];
+  }>;
+  "DIVERSITY INFORMATION": {
+    "Minority (BIPOC) Partners in GP": boolean;
+    "Female Partners in GP": boolean;
+  };
+  "PAST FUNDS / INVESTMENT VEHICLES": Record<string, unknown>[];
+  "ADDITIONAL / MISCELLANEOUS DATA POINTS": {
+    "Validation/Proof Cases of Sourcing Methodology": null | string;
+    "Due Diligence Scorecard": null | string;
+    "Entity Structure": string;
+    "Creator of Fund Manager's LPA": string | null;
+    "Creator of Subscription Agreement": string | null;
+    "Existing Side Letters": boolean;
+    "Fund Manager Bio/Career Summary": null | string;
+  };
+}
+
+interface ApiResponse {
+  success: boolean;
+  excel: FundData[];
+  doc: {
+    analysis: FundAnalysis[];
+  };
+}
+
+type FundData = Record<string, string | number | boolean | null>;
 
 export default function AnalyzePage() {
   const [files, setFiles] = useState<File[]>([]);
@@ -76,36 +169,28 @@ export default function AnalyzePage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
     null
   );
-  const [data, setData] = useState<FundData | null>(null);
+  const [excelData, setExcelData] = useState<FundData[]>([]);
   const [loading, setLoading] = useState(false);
-  // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-  //   if (event.target.files) {
-  //     setFiles((prevFiles) => [
-  //       ...prevFiles,
-  //       ...Array.from(event.target.files || []),
-  //     ]);
-  //   }
-  // };
 
-  // const removeFile = (index: number) => {
-  //   setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
-  // };
   const handleAnalysisSubmit = async () => {
     setLoading(true);
     try {
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/analyze`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analyze2`,
         {
           method: "POST",
         }
       );
-      const result: FundData = await response.json();
-      setData(result.excel);
+      const result: ApiResponse = await response.json();
+      if (result.success && result.excel) {
+        setExcelData(result.excel);
+      }
     } catch (error) {
       console.error("Error fetching analysis:", error);
     }
     setLoading(false);
   };
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log("button clicked");
@@ -147,7 +232,7 @@ export default function AnalyzePage() {
 
       // Replace this with your actual API endpoint
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/analyze`,
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analyze2`,
         {
           method: "POST",
           body: formData,
@@ -176,16 +261,27 @@ export default function AnalyzePage() {
   const handleNewAnalysis = () => {
     setFiles([]);
     setAnalysisResult(null);
+    setExcelData([]);
   };
 
   const hostUrl = process.env.NEXT_PUBLIC_FILE_SERVER_HOST;
+
+  // Get all possible field names from all objects in excelData
+  const getFieldNames = () => {
+    if (!excelData || excelData.length === 0) return [];
+    const fieldSet = new Set<string>();
+    excelData.forEach((fund) => {
+      Object.keys(fund).forEach((key) => fieldSet.add(key));
+    });
+    return Array.from(fieldSet);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Header />
       <main className="flex-grow container mx-auto px-4 py-12">
         <h1 className="text-4xl font-bold mb-8 text-center">
-          Analyze Company Documents
+          Analyze Fund Data
         </h1>
         {!analysisResult ? (
           <Card className="max-w-screen-xl mx-auto">
@@ -267,36 +363,51 @@ export default function AnalyzePage() {
             onNewAnalysis={handleNewAnalysis}
           />
         )}
-        {data && (
-          <>
-            <Card className="w-full max-w-3xl border mt-4">
-              <CardHeader>Results</CardHeader>
-              <CardContent className="p-4">
-                <div className="overflow-x-auto max-h-96">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        {Object.keys(data).map((key) => (
-                          <TableHead key={key} className="min-w-32">
-                            {key}
-                          </TableHead>
-                        ))}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      <TableRow>
-                        {Object.values(data).map((value, index) => (
+
+        {excelData && excelData.length > 0 && (
+          <Card className="w-full mt-8 overflow-hidden">
+            <CardHeader>
+              <h2 className="text-2xl font-bold">Fund Data Analysis</h2>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="font-bold">Field</TableHead>
+                      {excelData.map((fund, index) => (
+                        <TableHead key={index} className="min-w-40 font-medium">
+                          {fund["Fund Manager"]
+                            ? fund["Fund Manager"].toString()
+                            : `Fund ${index + 1}`}
+                        </TableHead>
+                      ))}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {getFieldNames().map((field) => (
+                      <TableRow key={field}>
+                        <TableCell className="font-medium bg-gray-50">
+                          {field}
+                        </TableCell>
+                        {excelData.map((fund, index) => (
                           <TableCell key={index}>
-                            {value !== null ? value.toString() : "N/A"}
+                            {fund[field] !== null && fund[field] !== undefined
+                              ? typeof fund[field] === "boolean"
+                                ? fund[field]
+                                  ? "Yes"
+                                  : "No"
+                                : fund[field].toString()
+                              : "N/A"}
                           </TableCell>
                         ))}
                       </TableRow>
-                    </TableBody>
-                  </Table>
-                </div>
-              </CardContent>
-            </Card>
-          </>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
         )}
       </main>
       <LoadingPopup
