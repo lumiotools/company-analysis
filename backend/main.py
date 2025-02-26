@@ -34,6 +34,7 @@ app.add_middleware(
 
 @app.post("/api/analyze")
 async def analyze_company():
+    folder_name=uuid.uuid4()
     try:
         # Get the list of files from the server
         files = listFiles()  # Get the list of all files
@@ -41,7 +42,7 @@ async def analyze_company():
         all_file_urls = get_all_files(files)  # Find files under 'Alpine VC'
 
         # print("All files to download:", all_file_urls)
-        folder_name=uuid.uuid4()
+        
         # folder_name="ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd"
 
         # Download the files
@@ -86,7 +87,6 @@ async def analyze_company():
 
         # Return the analysis result
         return JSONResponse(content={"success": True,"excel":combinedExcelAnalysis, "doc":combinedDocAnalysis})
-        return JSONResponse(content={"success": True, "doc":doc_analysis,"excel":excel_analysis}, status_code=200)
 
     except Exception as e:
         return JSONResponse(content={"success": False, "message": str(e)}, status_code=500)
