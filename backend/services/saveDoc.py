@@ -2,9 +2,6 @@ import os
 from docx import Document
 from docx.shared import Pt
 
-UPLOAD_DIR = "temp_uploads"
-DEFAULT_DOCX_FILENAME = "doc_extracted_results.docx"
-
 def add_dict_to_doc(document, data, indent=0):
     """
     Recursively adds dictionary data to a docx document.
@@ -41,22 +38,56 @@ def add_dict_to_doc(document, data, indent=0):
             text = str(value) if value is not None else "Not Found"
             p_value.add_run(text)
 
-def save_doc_to_docx(doc_data, filename=DEFAULT_DOCX_FILENAME):
+def save_multiple_analyses_to_docx(doc_data, folder_name):
     """
-    Saves the nested dictionary (doc_data) to a DOCX file.
-    The data is recursively added with indentation reflecting the nested structure.
-    A custom filename can be provided; otherwise, a default is used.
+    Saves multiple analyses to separate DOCX files based on fund name.
+    
+    Parameters:
+    - doc_data: Dictionary containing the document structure
+    - folder_name: Name of the folder to save files in
+    
+    Returns:
+    - List of file paths where documents were saved
     """
-    if not os.path.exists(UPLOAD_DIR):
-        os.makedirs(UPLOAD_DIR)
+    print("doc data", doc_data)
+    BASE_DIR = "temp_uploads"
+    OUTPUT_DIR = os.path.join(BASE_DIR, folder_name, "docOutputs")
     
-    file_path = os.path.join(UPLOAD_DIR, filename)
-    document = Document()
+    # Create output directory
+    if not os.path.exists(OUTPUT_DIR):
+        os.makedirs(OUTPUT_DIR)
     
-    # Optional title or heading
-    document.add_heading("Document Data", level=1)
+    saved_files = []
     
-    add_dict_to_doc(document, doc_data)
+    # Process each analysis item
+    if "analysis" in doc_data:  # Changed from doc_data["doc"]
+        analyses = doc_data["analysis"]
+        
+        for analysis in analyses:
+            # Extract fund name for file naming
+            fund_name = None
+            if "GENERAL FUND INFORMATION" in analysis and "Fund Name" in analysis["GENERAL FUND INFORMATION"]:
+                fund_name = analysis["GENERAL FUND INFORMATION"]["Fund Name"]
+            
+            if not fund_name:
+                fund_name = f"unknown_fund_{len(saved_files)}"
+            
+            # Create safe filename
+            safe_filename = "".join(c if c.isalnum() or c in "._- " else "_" for c in fund_name)
+            file_path = os.path.join(OUTPUT_DIR, f"{safe_filename}.docx")
+            
+            # Create document
+            document = Document()
+            document.add_heading(f"Fund Analysis: {fund_name}", level=1)
+            
+            # Add analysis data
+            add_dict_to_doc(document, analysis)
+            
+            # Save document
+            document.save(file_path)
+            saved_files.append(file_path)
+            print(f"Document saved to {file_path}")
     
-    document.save(file_path)
-    print(f"Document saved to {file_path}")
+    return saved_files
+
+   

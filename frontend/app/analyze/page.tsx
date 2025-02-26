@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import type React from "react";
@@ -6,7 +7,7 @@ import { useState } from "react";
 import { Header } from "@/components/common/header";
 import { Footer } from "@/components/common/footer";
 import { CompanyAnalysis } from "@/components/company-analysis";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { LoadingPopup } from "@/components/loading-popup";
 import {
   FileManagerComponent,
@@ -18,6 +19,14 @@ import {
 import { registerLicense } from "@syncfusion/ej2-base";
 import { Button } from "@/components/ui/button";
 registerLicense(process.env.NEXT_PUBLIC_SYNCFUSION_LICENSE_KEY as string);
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 interface AnalysisResult {
   company_name: string;
@@ -57,6 +66,7 @@ interface AnalysisResult {
     comments: string;
   };
 }
+type FundData = Record<string, string | number | null>;
 
 export default function AnalyzePage() {
   const [files, setFiles] = useState<File[]>([]);
@@ -66,7 +76,8 @@ export default function AnalyzePage() {
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(
     null
   );
-
+  const [data, setData] = useState<FundData | null>(null);
+  const [loading, setLoading] = useState(false);
   // const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   //   if (event.target.files) {
   //     setFiles((prevFiles) => [
@@ -79,7 +90,22 @@ export default function AnalyzePage() {
   // const removeFile = (index: number) => {
   //   setFiles((prevFiles) => prevFiles.filter((_, i) => i !== index));
   // };
-
+  const handleAnalysisSubmit = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/analyze`,
+        {
+          method: "POST",
+        }
+      );
+      const result: FundData = await response.json();
+      setData(result.excel);
+    } catch (error) {
+      console.error("Error fetching analysis:", error);
+    }
+    setLoading(false);
+  };
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     console.log("button clicked");
@@ -226,11 +252,13 @@ export default function AnalyzePage() {
               >
                 <Inject services={[NavigationPane, DetailsView, Toolbar]} />
               </FileManagerComponent>
-              <form onSubmit={handleSubmit}>
-                <Button className="mx-auto" onClick={handleSubmit}>
-                  Start Analysis
-                </Button>
-              </form>
+              <Button
+                className="mx-auto"
+                onClick={handleAnalysisSubmit}
+                disabled={loading}
+              >
+                {loading ? "Analyzing..." : "Start Analysis"}
+              </Button>
             </CardContent>
           </Card>
         ) : (
@@ -238,6 +266,37 @@ export default function AnalyzePage() {
             analysisResult={analysisResult}
             onNewAnalysis={handleNewAnalysis}
           />
+        )}
+        {data && (
+          <>
+            <Card className="w-full max-w-3xl border mt-4">
+              <CardHeader>Results</CardHeader>
+              <CardContent className="p-4">
+                <div className="overflow-x-auto max-h-96">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {Object.keys(data).map((key) => (
+                          <TableHead key={key} className="min-w-32">
+                            {key}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        {Object.values(data).map((value, index) => (
+                          <TableCell key={index}>
+                            {value !== null ? value.toString() : "N/A"}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            </Card>
+          </>
         )}
       </main>
       <LoadingPopup
