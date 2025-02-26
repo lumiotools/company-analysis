@@ -34,65 +34,33 @@ app.add_middleware(
 
 @app.post("/api/analyze")
 async def analyze_company():
-    folder_name=uuid.uuid4()
+    folder_name = uuid.uuid4()
+    str_folder_name = str(folder_name)  # Convert UUID to string right after creation
+    
     try:
         # Get the list of files from the server
-        files = listFiles()  # Get the list of all files
-        #print("files",files)
-        all_file_urls = get_all_files(files)  # Find files under 'Alpine VC'
-
-        # print("All files to download:", all_file_urls)
+        files = listFiles()
+        all_file_urls = get_all_files(files)
         
-        # folder_name="ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd"
-
         # Download the files
-        downloaded_files = download_files(all_file_urls,folder_name)
-
+        downloaded_files = download_files(all_file_urls, str_folder_name)  # Use string version
         print("Downloaded files:", downloaded_files)
-        str_folder_name = str(folder_name)
-        # downloaded_files=['temp_uploads/Alpine VC Overview.pdf', 'temp_uploads/Ed Suh Deal Sheet (Current & Prior) (1).xlsx']
-
-        # # Here, you would extract content from the downloaded files
-        # extracted_content = []
-        # for file_path in downloaded_files:
-        #     content = extractContent(file_path)  # Assuming extractContent function is implemented
-        #     extracted_content.append({"name": os.path.basename(file_path), "content": content})
-
+        
+        # Rest of your code using str_folder_name
         result_location = write_extracted_content_json(str_folder_name)
-        # print("Result JSON file written to:", result_location)
-        # result_location="temp_uploads/89eb76fb-1954-4053-abd3-3da48633136d/result.json"
-        
-        # print("extracted content",extracted_content)
-
-
-        # # Analyze the extracted content
-        # excel_analysis = analyzeDocuments(extracted_content,system_prompt_excel) 
-        # doc_analysis = analyzeDocuments(extracted_content,system_prompt_doc)
-
         final_result_location = process_hierarchical_data(result_location, system_prompt_excel, system_prompt_doc)
-        # print("final result", final_result,"final path",final_path)
-
-        # final_result_location = f"temp_uploads/{folder_name}/final_result.json"
-        combinedExcelAnalysis=combine_excel_analyses(final_result_location)
-        combinedDocAnalysis=combine_doc_analyses(final_result_location)
-        saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis,str_folder_name)
-        # print("saved files",saved_files)
-        # saved_files=['temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/8-Bit Capital.docx', 'temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/Draper Cygnus.docx', 'temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/Alpine VC.docx', 'temp_uploads/ff7decd6-fa0f-4ae8-ae46-8fe9c5ee31dd/docOutputs/Feld Ventures.docx']
+        combinedExcelAnalysis = combine_excel_analyses(final_result_location)
+        combinedDocAnalysis = combine_doc_analyses(final_result_location)
+        saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis, str_folder_name)
         create_folder_and_upload_files(saved_files, 'docOutput')
-
         
-        # save_to_excel(excel_analysis)
-        # save_doc_to_docx(doc_analysis)
-
-
-        # Return the analysis result
-        return JSONResponse(content={"success": True,"excel":combinedExcelAnalysis, "doc":combinedDocAnalysis})
-
+        return JSONResponse(content={"success": True, "excel": combinedExcelAnalysis, "doc": combinedDocAnalysis})
+    
     except Exception as e:
         return JSONResponse(content={"success": False, "message": str(e)}, status_code=500)
+    
     finally:
-        folder_path = os.path.join(UPLOAD_DIR, folder_name)
-        # Clean up the temporary folder
+        folder_path = os.path.join(UPLOAD_DIR, str_folder_name)  # Use string version here
         try:
             if os.path.exists(folder_path):
                 print(f"Cleaning up temporary folder: {folder_path}")
@@ -102,7 +70,6 @@ async def analyze_company():
                 print(f"Folder {folder_path} does not exist, no cleanup needed")
         except Exception as cleanup_error:
             print(f"Error during cleanup: {str(cleanup_error)}")
-
 
 
 
