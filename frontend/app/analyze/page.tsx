@@ -374,24 +374,24 @@ export default function AnalyzePage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="font-bold">Field</TableHead>
-                      {excelData.map((fund, index) => (
-                        <TableHead key={index} className="min-w-40 font-medium">
-                          {fund["Fund Manager"]
-                            ? fund["Fund Manager"].toString()
-                            : `Fund ${index + 1}`}
+                      <TableHead className="font-bold">Fund</TableHead>
+                      {getFieldNames().map((field) => (
+                        <TableHead key={field} className="min-w-40 font-medium">
+                          {field}
                         </TableHead>
                       ))}
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {getFieldNames().map((field) => (
-                      <TableRow key={field}>
+                    {excelData.map((fund, fundIndex) => (
+                      <TableRow key={fundIndex}>
                         <TableCell className="font-medium bg-gray-50">
-                          {field}
+                          {fund["Fund Manager"]
+                            ? fund["Fund Manager"].toString()
+                            : `Fund ${fundIndex + 1}`}
                         </TableCell>
-                        {excelData.map((fund, index) => (
-                          <TableCell key={index}>
+                        {getFieldNames().map((field) => (
+                          <TableCell key={field}>
                             {fund[field] !== null && fund[field] !== undefined
                               ? typeof fund[field] === "boolean"
                                 ? fund[field]
