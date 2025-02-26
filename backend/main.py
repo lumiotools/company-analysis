@@ -18,6 +18,7 @@ import requests
 from prompts import system_prompt, system_prompt_doc, system_prompt_excel
 from services.saveExcel import save_to_excel
 from services.saveDoc import save_multiple_analyses_to_docx
+import shutil
 
 UPLOAD_DIR = "temp_uploads"
 
@@ -47,6 +48,7 @@ async def analyze_company():
         downloaded_files = download_files(all_file_urls,folder_name)
 
         print("Downloaded files:", downloaded_files)
+        folder_name = str(folder_name)
         # downloaded_files=['temp_uploads/Alpine VC Overview.pdf', 'temp_uploads/Ed Suh Deal Sheet (Current & Prior) (1).xlsx']
 
         # # Here, you would extract content from the downloaded files
@@ -88,6 +90,18 @@ async def analyze_company():
 
     except Exception as e:
         return JSONResponse(content={"success": False, "message": str(e)}, status_code=500)
+    finally:
+        folder_path = os.path.join(UPLOAD_DIR, folder_name)
+        # Clean up the temporary folder
+        try:
+            if os.path.exists(folder_path):
+                print(f"Cleaning up temporary folder: {folder_path}")
+                shutil.rmtree(folder_path)
+                print(f"Successfully removed {folder_path}")
+            else:
+                print(f"Folder {folder_path} does not exist, no cleanup needed")
+        except Exception as cleanup_error:
+            print(f"Error during cleanup: {str(cleanup_error)}")
 
 
 
