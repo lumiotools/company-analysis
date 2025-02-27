@@ -14,7 +14,7 @@ def extractContent(file_path: str):
         if file_path.endswith(".pdf"):
             return extract_text_from_pdf(file_path)
         elif file_path.endswith(".xlsx") or file_path.endswith(".xls"):
-            return extractExcelContent(file_path)
+            return extract_excel_content(file_path)
         else:
             print(f"Warning: Unsupported file format for file {file_path}. Skipping extraction.")
             return ""
@@ -67,3 +67,22 @@ def extract_text_from_pdf(pdf_path: str):
     ocr_text = "\n".join([pytesseract.image_to_string(img) for img in images])
     
     return ocr_text
+
+def extract_excel_content(file_path: str) -> str:
+    try:
+        excel_file = pd.ExcelFile(file_path, engine="openpyxl")  # Efficient for .xlsx
+
+        with io.StringIO() as buffer:
+            for sheet_name in excel_file.sheet_names:
+                df = excel_file.parse(sheet_name)  # Read sheet
+                if df.empty:
+                    continue  # Skip empty sheets
+
+                buffer.write(f"Sheet: {sheet_name}\n\n")  # Add sheet name
+                df.to_csv(buffer, index=False)  # Convert DataFrame to CSV
+                buffer.write("\n\n")
+
+            return buffer.getvalue()  # Get full extracted content
+
+    except Exception as e:
+        return f"Error extracting Excel content from {file_path}: {str(e)}"
