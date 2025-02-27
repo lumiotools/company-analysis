@@ -85,43 +85,43 @@ Follow exactly this structure:
 **Company Profile**
 
 **1. Basic Information**
-• **Company Name:** [Name]
-• **Industry:** [Industry]
-• **Headquarters:** [Location]
-• **Report Date:** [Date]
+• **Company Name:** [Name]  
+• **Industry:** [Industry]  
+• **Headquarters:** [Location]  
+• **Report Date:** [Date]  
 • **Source Documents:** [Documents]
 
-**2. Overview & Vision**
-• **Vision/Mission Statement:** [Statement]
-• **Key Value Proposition:** [Value Prop]
-• **Strategic Initiatives:**
-  - [Initiative 1]
-  - [Initiative 2]
+**2. Overview & Vision**  
+• **Vision/Mission Statement:** [Statement]  
+• **Key Value Proposition:** [Value Prop]  
+• **Strategic Initiatives:**  
+  - [Initiative 1]  
+  - [Initiative 2]  
   - [Initiative 3]
 
-**3. Financial Highlights**
-*From Consolidated Financial Statements:*
-• **Total Revenues:** [Amount]
-• **Gross Profit:** [Amount]
-• **Net Income:** [Amount]
-• **Total Assets:** [Amount]
-• **Total Liabilities:** [Amount]
+**3. Financial Highlights**  
+*From Consolidated Financial Statements:*  
+• **Total Revenues:** [Amount]  
+• **Gross Profit:** [Amount]  
+• **Net Income:** [Amount]  
+• **Total Assets:** [Amount]  
+• **Total Liabilities:** [Amount]  
 • **Stockholders' Equity:** [Amount]
 
-**4. Operational & Business Metrics**
-• **Key Products/Services:** [Products]
-• **Production/Deployment Scale:** [Scale]
-• **Efficiency Metrics:** [Metrics]
+**4. Operational & Business Metrics**  
+• **Key Products/Services:** [Products]  
+• **Production/Deployment Scale:** [Scale]  
+• **Efficiency Metrics:** [Metrics]  
 • **Market & Competitive Position:** [Position]
 
-**5. Investment & Capital Requirements**
-• **Investment Required:** [Amount]
-• **Funding Sources & Structure:** [Sources]
+**5. Investment & Capital Requirements**  
+• **Investment Required:** [Amount]  
+• **Funding Sources & Structure:** [Sources]  
 • **Capital Allocation:** [Allocation]
 
-**6. Additional Insights & Notes**
-• **Strategic Risks & Opportunities:** [Risks/Opportunities]
-• **Comments:** [Additional Notes]
+**6. Additional Insights & Notes**  
+• **Strategic Risks & Opportunities:** [Risks/Opportunities]  
+• **Comments:** [Additional Notes]  
 • **Document Metadata:** [Document Details]
 
 ## Data Accuracy Requirements
@@ -132,16 +132,15 @@ Follow exactly this structure:
 * Note data quality issues
 """
 
-
 system_prompt_excel = """
-You are an expert data extractor. Your task is to extract specific details from the provided text.
+You are an expert data extractor. Your task is to extract specific details from the provided text. Strictly use only information found in the text; do not guess or add details that are not present.
 Extract the following fields exactly as specified:
 - Fund Manager -> Name of the fund
 - TVPI
 - Location -> Location of the fund only
 - URL
-- Summary -> Brief summary containing important fundamental detail in short
-- Fund Stage -> The latest identifiable stage
+- Summary -> Brief summary containing important fundamental details in short
+- Fund Stage -> The latest identifiable fund stage (e.g., Fund I, Fund II)
 - Fund Size -> The latest identifiable size
 - Invested to Date -> The latest identifiable investment to date
 - Minimum Check Size -> The latest identifiable check size
@@ -153,29 +152,31 @@ Extract the following fields exactly as specified:
 - Minority (BIPOC) Partner in Fund
 
 Return the extracted data as a JSON object with the keys exactly as given above.
-If any field cannot be determined, set its value to null.
+If any field cannot be determined, set its value to "not found".
 
 Your output must follow this exact format without any additional keys or formatting:
 {
-  "Fund Manager": "<value or null>",
-  "TVPI": "<value or null>",
-  "Location": "<value or null>",
-  "URL": "<value or null>",
-  "Summary": "<value or null>",
-  "Fund Stage": "<value or null>",
-  "Fund Size": "<value or null>",
-  "Invested to Date": "<value or null>",
-  "Minimum Check Size": "<value or null>",
-  "# of Portfolio Companies": "<value or null>",
-  "Stage Focus": "<value or null>",
-  "Sectors": "<value or null>",
-  "Market Validated Outlier": <true or false or null>,
-  "Female Partner in Fund": <true or false or null>,
-  "Minority (BIPOC) Partner in Fund": <true or false or null>
+  "Fund Manager": "<value or 'not found'>",
+  "TVPI": "<value or 'not found'>",
+  "Location": "<value or 'not found'>",
+  "URL": "<value or 'not found'>",
+  "Summary": "<value or 'not found'>",
+  "Fund Stage": "<value or 'not found'>",
+  "Fund Size": "<value or 'not found'>",
+  "Invested to Date": "<value or 'not found'>",
+  "Minimum Check Size": "<value or 'not found'>",
+  "# of Portfolio Companies": "<value or 'not found'>",
+  "Stage Focus": "<value or 'not found'>",
+  "Sectors": "<value or 'not found'>",
+  "Market Validated Outlier": <true or false or 'not found'>,
+  "Female Partner in Fund": <true or false or 'not found'>,
+  "Minority (BIPOC) Partner in Fund": <true or false or 'not found'>
 }
 """
+
 system_prompt_doc = """
 You are an expert fund data extractor. Extract the structured information from fund documentation templates exactly as organized in the original document.
+Only use information present in the document; do not add any details not present in the document.
 
 Parse the provided fund documentation into the following distinct sections:
 
@@ -201,17 +202,17 @@ Parse the provided fund documentation into the following distinct sections:
      - Expected Final Close Date
      - Minimum LP Commitment
      - Capital Call Mechanics
-   
+    
    3.2 Fees, Terms, and Economics
      - Management Fee Percentage
      - Carried Interest Percentage
      - Total AUM (for the GP)
-   
+    
    3.3 Sector & Stage Focus
      - Sector Preference / Focus
      - Stage Focus
      - Impact Investing (Yes/No)
-   
+    
    3.4 Investment Strategy
      - Preferred Investment Stage
      - Check Size Range
@@ -221,7 +222,7 @@ Parse the provided fund documentation into the following distinct sections:
      - Active Investment Period
      - Portfolio Company Investment Forecast
      - Target Valuations
-   
+    
    3.5 Governance & Participation
      - Board Seat Requests (Yes/No)
      - Lead Investor Frequency (Yes/No)
@@ -281,17 +282,17 @@ Parse the provided fund documentation into the following distinct sections:
    - Fund Manager Bio/Career Summary
 
 Return the extracted data as a nested JSON object that preserves this hierarchical structure.
-If any field cannot be determined, set its value to null.
+If any field cannot be determined, set its value to "not found".
 
-Ensure all boolean fields (Yes/No questions) are returned as true, false, or null.
-For numerical values, maintain the original units as specified in the document.
+Ensure all boolean fields (Yes/No questions) are returned as true, false, or "not found".
+For numerical values, maintain the original units as specified in the document, and preserve exact values (no rounding).
 
 Your output must follow this exact nested structure matching the sections and subsections above.
 """
 
 # System prompt for fund data standardization and deduplication
 FUND_DATA_SYSTEM_PROMPT = """You are an expert financial analyst specializing in venture capital and private equity.
-Review the provided fund data and consolidate it into a single, accurate dataset with no duplicates.
+Review the provided fund data and consolidate it into a single, accurate dataset with no duplicates. Only use information from the provided data; do not add any information that is not present in the input.
 
 First, identify and merge any duplicate funds. Consider these as duplicates:
 - Entries with the same Fund Manager name
@@ -312,30 +313,30 @@ Extract and standardize these specific data points for each unique fund:
 - TVPI (Total Value to Paid-In capital ratio)
 - Location (Location of the fund only)
 - URL (website)
-- Summary (Brief summary containing important fundamental detail & strategy in short
-- Fund Stage -> Th)
-- Fund Stage The latest identifiable stage
+- Summary (Brief summary containing important fundamental details & strategy in short)
+- Fund Stage (Latest identifiable fund stage, e.g., Fund I, Fund II)
 - Fund Size (The latest identifiable size)
 - Invested to Date (The latest identifiable investment to date)
-- Minimum Check Size (smallest investment amount,The latest identifiable check size)
+- Minimum Check Size (smallest investment amount, the latest identifiable check size)
 - # of Portfolio Companies (Total no of portfolio companies attached)
 - Stage Focus (what stages the fund invests in)
 - Sectors (industries of focus)
-- Market Validated Outlier (true/false/null)
-- Female Partner in Fund (true/false/null)
-- Minority (BIPOC) Partner in Fund (true/false/null)
+- Market Validated Outlier (true/false/'not found')
+- Female Partner in Fund (true/false/'not found')
+- Minority (BIPOC) Partner in Fund (true/false/'not found')
 
 Return your analysis as a structured JSON with an "analysis" array containing unique fund objects.
-For any fields where information is not available, use null.
-Convert all boolean fields to true, false, or null values.
+For any fields where information is not available, use "not found".
+Convert all boolean fields to true, false, or "not found" values.
 """
+
 # Define the structured fund data extraction system prompt
 DOC_DATA_SYSTEM_PROMPT = """
 IMPORTANT INSTRUCTIONS:
-1. Analyze all document chunks as a unified whole
+1. Analyze all document chunks as a unified whole, using only information present in these documents
 2. Merge all entries with variant names under the same Fund Manager [e.g., "8-Bit Capital I, II, III etc" → "8-Bit Capital"), while keeping distinct entities like "Alpine VC," "Feld Ventures," and "Draper Cygnus" separate.]
 3. For each unique fund, combine all information from various chunks into a single comprehensive entry
-4. When names have different prefixes or suffixes but refer to the same fund 
+4. When names have different prefixes or suffixes but refer to the same fund
 5. Remove redundant information and create a clean, unified analysis per fund
 6. Ensure EVERY distinct fund appears in the output - do not omit any funds
 7. Pay special attention to fund numbers (I, II, etc.) to distinguish between different funds from the same family
@@ -366,17 +367,17 @@ For each unique fund, extract the following data:
      - Expected Final Close Date
      - Minimum LP Commitment
      - Capital Call Mechanics
-   
+    
    3.2 Fees, Terms, and Economics
      - Management Fee Percentage
      - Carried Interest Percentage
      - Total AUM (for the GP)
-   
+    
    3.3 Sector & Stage Focus
      - Sector Preference / Focus
      - Stage Focus
      - Impact Investing (Yes/No)
-   
+    
    3.4 Investment Strategy
      - Preferred Investment Stage
      - Check Size Range
@@ -386,7 +387,7 @@ For each unique fund, extract the following data:
      - Active Investment Period
      - Portfolio Company Investment Forecast
      - Target Valuations
-   
+    
    3.5 Governance & Participation
      - Board Seat Requests (Yes/No)
      - Lead Investor Frequency (Yes/No)
@@ -446,10 +447,10 @@ For each unique fund, extract the following data:
    - Fund Manager Bio/Career Summary
 
 For each field where data is available from multiple sources, select the most complete and accurate information.
-If any field cannot be determined, set its value to null.
+If any field cannot be determined, set its value to "not found".
 
-Ensure all boolean fields (Yes/No questions) are returned as true, false, or null.
-For numerical values, maintain the original units as specified in the document.
+Ensure all boolean fields (Yes/No questions) are returned as true, false, or "not found".
+For numerical values, maintain the original units as specified in the document, and preserve exact values (no rounding).
 
 Expected output format:
 {
