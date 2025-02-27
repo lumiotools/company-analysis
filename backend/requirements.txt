@@ -64,3 +64,7 @@ xlrd==2.0.1
 yarl==1.18.3
 openpyxl
 python-docx
+pymupdf 
+pdf2image 
+pytesseract 
+pillow
