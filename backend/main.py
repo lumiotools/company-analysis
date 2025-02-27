@@ -19,6 +19,7 @@ from prompts import system_prompt, system_prompt_doc, system_prompt_excel
 from services.saveExcel import save_to_excel
 from services.saveDoc import save_multiple_analyses_to_docx
 import shutil
+import time
 
 UPLOAD_DIR = "temp_uploads"
 
@@ -38,6 +39,7 @@ async def analyze_company(directory_name: str):
     str_folder_name = str(folder_name)  # Convert UUID to string right after creation
     
     try:
+        start_time = time.time()
         # Get the list of files from the server
         files = listFiles()
         # print("files",files)
@@ -61,7 +63,9 @@ async def analyze_company(directory_name: str):
         # saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis, str_folder_name)
         # create_folder_and_upload_files(saved_files, 'docOutput')
         # return JSONResponse(content={"success": True,files:files})
-        return JSONResponse(content={"success": True, "excel": combinedExcelAnalysis, "doc": combinedDocAnalysis})
+        end_time = time.time()  # End the timer
+        total_time = end_time - start_time  # Calculate execution time in seconds
+        return JSONResponse(content={"success": True, "excel": combinedExcelAnalysis, "doc": combinedDocAnalysis,"time_taken_seconds": round(total_time, 2)})
     
     except Exception as e:
         return JSONResponse(content={"success": False, "message": str(e)}, status_code=500)

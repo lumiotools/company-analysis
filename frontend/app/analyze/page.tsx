@@ -27,6 +27,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AnalysisProgress from "@/components/AnalysisProgress";
 
 interface AnalysisResult {
   company_name: string;
@@ -70,84 +79,94 @@ interface AnalysisResult {
 // Updated interface for the API response
 // Interface for fund analysis document structure
 interface FundAnalysis {
-  "GENERAL FUND INFORMATION": {
-    "Fund Name": string;
-    "Fund Location": string;
-    "Fund Website URL": string;
-  };
-  "PRIMARY CONTACT INFORMATION": {
-    "Primary Contact Name": string;
-    "Primary Contact Position": string;
-    "Primary Contact Phone Number": string | null;
-    "Primary Contact Email": string;
-    "Primary Contact LinkedIn URL": string;
-  };
-  "FUND-SPECIFIC DETAILS (CURRENT FUND)": {
-    "Fundraising Status & Timing": {
-      "Currently Fundraising": boolean;
-      "Current Fund Number": string;
-      "Fund Size (Target & Cap)": string;
-      "Already Closed / Committed Amount": string;
-      "First Close Date": string;
-      "Expected Final Close Date": string;
-      "Minimum LP Commitment": string;
-      "Capital Call Mechanics": string;
+  fund: {
+    general_information: {
+      name: string;
+      location: string;
+      website: string | null;
     };
-    "Fees, Terms, and Economics": {
-      "Management Fee Percentage": number;
-      "Carried Interest Percentage": number;
-      "Total AUM (for the GP)": string;
+    primary_contact: {
+      name: string;
+      position: string;
+      phone: string | null;
+      email: string;
+      linkedin: string | null;
     };
-    "Sector & Stage Focus": {
-      "Sector Preference / Focus": string;
-      "Stage Focus": string;
-      "Impact Investing": boolean;
+    fund_details: {
+      fundraising_status: {
+        actively_fundraising: boolean;
+        fund_series: string;
+        target_size: string;
+        cap_size: string | null;
+        committed_amount: string;
+        first_close_date: string;
+        final_close_date: string;
+        minimum_lp_commitment: string | null;
+        capital_call_mechanics: string | null;
+      };
+      fees_terms_economics: {
+        management_fee: string;
+        carried_interest: string;
+        total_aum: string | null;
+      };
+      sector_stage_focus: {
+        sectors: string[];
+        stage_focus: string[];
+        impact_investing: boolean;
+      };
+      investment_strategy: {
+        preferred_stage: string[];
+        check_size_range: string;
+        yearly_investment_cadence: number | null;
+        target_ownership_percentage: string;
+        follow_on_reserves: string;
+        active_investment_period: string;
+        portfolio_forecast: string | null;
+        target_valuations: string | null;
+      };
+      governance_participation: {
+        board_seat_required: boolean;
+        lead_investor_frequency: boolean;
+        lp_list: string[];
+      };
     };
-    "Investment Strategy": {
-      "Preferred Investment Stage": string;
-      "Check Size Range": string;
-      "Yearly Investment Cadence": number;
-      "Target Ownership Percentage": number;
-      "Follow-On Reserves": boolean;
-      "Active Investment Period": string;
-      "Portfolio Company Investment Forecast": string;
-      "Target Valuations": string;
+    track_record: {
+      portfolio_companies: Array<{
+        name: string;
+        url: string | null;
+        investment_fund: string;
+        amount_invested: string;
+        post_money_valuation: string;
+        stage_round: string;
+        form_of_financing: string;
+        unrealized_value: string | null;
+        distributed_value: string | null;
+        total_value: string | null;
+        dpi: number | null;
+        moic: number;
+        irr: number | null;
+        co_investors: string[];
+      }>;
     };
-    "Governance & Participation": {
-      "Board Seat Requests": boolean;
-      "Lead Investor Frequency": boolean;
-      "LP List": string[];
+    diversity_information: {
+      minority_partners: boolean;
+      female_partners: boolean;
     };
-  };
-  "TRACK RECORD (PORTFOLIO COMPANIES)": Array<{
-    "Portfolio Company Name"?: string;
-    "Company URL"?: string;
-    "Investment Fund/Source"?: string;
-    "Amount Invested"?: string;
-    "Post-Money Valuation"?: string;
-    "Stage/Round"?: string;
-    "Form of Financing"?: string;
-    "Unrealized Value"?: string;
-    "Distributed Value"?: string;
-    "Total Value"?: string;
-    DPI?: number;
-    MOIC?: number;
-    IRR?: number;
-    "Highlighted Co-Investors"?: string[];
-  }>;
-  "DIVERSITY INFORMATION": {
-    "Minority (BIPOC) Partners in GP": boolean;
-    "Female Partners in GP": boolean;
-  };
-  "PAST FUNDS / INVESTMENT VEHICLES": Record<string, unknown>[];
-  "ADDITIONAL / MISCELLANEOUS DATA POINTS": {
-    "Validation/Proof Cases of Sourcing Methodology": null | string;
-    "Due Diligence Scorecard": null | string;
-    "Entity Structure": string;
-    "Creator of Fund Manager's LPA": string | null;
-    "Creator of Subscription Agreement": string | null;
-    "Existing Side Letters": boolean;
-    "Fund Manager Bio/Career Summary": null | string;
+    past_funds: {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      funds: any[] | null;
+    };
+    additional_data: {
+      sourcing_validation: string | null;
+      due_diligence_scorecard: string | null;
+      entity_structure: string | null;
+      legal_documents: {
+        fund_manager_lpa: string | null;
+        subscription_agreement: string | null;
+        existing_side_letters: string | null;
+      };
+      fund_manager_bio: string;
+    };
   };
 }
 
@@ -155,8 +174,9 @@ interface ApiResponse {
   success: boolean;
   excel: FundData[];
   doc: {
-    analysis: FundAnalysis[];
+    fund: FundAnalysis["fund"];
   };
+  time_taken_seconds: number;
 }
 
 type FundData = Record<string, string | number | boolean | null>;
@@ -171,6 +191,14 @@ export default function AnalyzePage() {
   );
   const [excelData, setExcelData] = useState<FundData[]>([]);
   const [loading, setLoading] = useState(false);
+  const [docData, setDocData] = useState<FundAnalysis[]>([]);
+  const [selectedFundIndex, setSelectedFundIndex] = useState<number>(0);
+  const [activeTab, setActiveTab] = useState<string>("excel");
+  const [activeFundName, setActiveFundName] = useState("");
+  const [timeTaken, setTimeTaken] = useState(0); // Time in seconds, 0 means not started
+
+  const selectedFund =
+    docData && docData.length > 0 ? docData[selectedFundIndex] : null;
   const handleAnalysisLog = (): string | null => {
     const fileManagerInstance =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -198,11 +226,23 @@ export default function AnalyzePage() {
 
     return null; // Return null if no selection
   };
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+
+    // Only display minutes if there are any
+    if (mins > 0) {
+      return `${mins}min ${secs.toFixed(2)} seconds`;
+    } else {
+      return `${secs.toFixed(2)} seconds`;
+    }
+  };
   const handleAnalysisSubmit = async () => {
     setLoading(true);
 
     try {
       const directoryName = handleAnalysisLog(); // Get the selected directory name
+      setActiveFundName(directoryName || "");
 
       if (!directoryName) {
         console.error("No directory selected.");
@@ -220,8 +260,8 @@ export default function AnalyzePage() {
       );
 
       const result: ApiResponse = await response.json();
-      if (result.success && result.excel) {
-        if (result.success && result.excel) {
+      if (result.success) {
+        if (result.excel) {
           setExcelData((prevData) => {
             // If previous data exists, append new data
             if (prevData && prevData.length > 0) {
@@ -229,6 +269,23 @@ export default function AnalyzePage() {
             }
             // Otherwise, just use the new data
             return result.excel;
+          });
+        }
+        setTimeTaken(result.time_taken_seconds);
+
+        // Also handle doc data if it exists
+        if (result.doc && result.doc.fund) {
+          setDocData((prevDocData) => {
+            const newFundAnalysis: FundAnalysis = {
+              fund: result.doc.fund,
+            };
+
+            // If previous doc data exists, append new data
+            if (prevDocData && prevDocData.length > 0) {
+              return [...prevDocData, newFundAnalysis];
+            }
+            // Otherwise, just use the new data
+            return [newFundAnalysis];
           });
         }
       }
@@ -310,6 +367,8 @@ export default function AnalyzePage() {
     setFiles([]);
     setAnalysisResult(null);
     setExcelData([]);
+    setDocData([]);
+    setSelectedFundIndex(0);
   };
 
   const hostUrl = process.env.NEXT_PUBLIC_FILE_SERVER_HOST;
@@ -396,13 +455,25 @@ export default function AnalyzePage() {
               >
                 <Inject services={[NavigationPane, DetailsView, Toolbar]} />
               </FileManagerComponent>
-              <Button
-                className="mx-auto"
-                onClick={handleAnalysisSubmit}
-                disabled={loading}
-              >
-                {loading ? "Analyzing..." : "Start Analysis"}
-              </Button>
+              {!loading ? (
+                <Button
+                  className="mx-auto"
+                  onClick={handleAnalysisSubmit}
+                  disabled={loading}
+                >
+                  Start Analysis
+                </Button>
+              ) : (
+                <AnalysisProgress fundName={activeFundName} />
+              )}
+              {!isLoading && timeTaken > 0 && (
+                <div className="p-4 bg-gray-100 rounded-lg">
+                  <p className="text-lg font-medium">
+                    Total time taken:{" "}
+                    <span className="font-bold">{formatTime(timeTaken)}</span>
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -412,50 +483,338 @@ export default function AnalyzePage() {
           />
         )}
 
-        {excelData && excelData.length > 0 && (
-          <Card className="w-full mt-8 overflow-hidden">
-            <CardHeader>
-              <h2 className="text-2xl font-bold">Fund Data Analysis</h2>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="font-bold">Fund</TableHead>
-                      {getFieldNames().map((field) => (
-                        <TableHead key={field} className="min-w-40 font-medium">
-                          {field}
-                        </TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {excelData.map((fund, fundIndex) => (
-                      <TableRow key={fundIndex}>
-                        <TableCell className="font-medium bg-gray-50">
-                          {fund["Fund Manager"]
-                            ? fund["Fund Manager"].toString()
-                            : `Fund ${fundIndex + 1}`}
-                        </TableCell>
-                        {getFieldNames().map((field) => (
-                          <TableCell key={field}>
-                            {fund[field] !== null && fund[field] !== undefined
-                              ? typeof fund[field] === "boolean"
-                                ? fund[field]
-                                  ? "Yes"
-                                  : "No"
-                                : fund[field].toString()
-                              : "N/A"}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
+        {(excelData.length > 0 || docData.length > 0) && (
+          <div className="mt-8">
+            <Tabs
+              defaultValue="excel"
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
+              <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold">Fund Data Analysis</h2>
+                <TabsList>
+                  <TabsTrigger value="excel" disabled={excelData.length === 0}>
+                    Excel Analysis
+                  </TabsTrigger>
+                  <TabsTrigger value="doc" disabled={docData.length === 0}>
+                    Document Analysis
+                  </TabsTrigger>
+                </TabsList>
               </div>
-            </CardContent>
-          </Card>
+
+              <TabsContent value="excel" className="mt-0">
+                <Card className="w-full overflow-hidden">
+                  <CardContent className="p-0">
+                    <div className="overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="font-bold">Fund</TableHead>
+                            {getFieldNames().map((field) => (
+                              <TableHead
+                                key={field}
+                                className="min-w-40 font-medium"
+                              >
+                                {field}
+                              </TableHead>
+                            ))}
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {excelData.map((fund, fundIndex) => (
+                            <TableRow key={fundIndex}>
+                              <TableCell className="font-medium bg-gray-50">
+                                {fund["Fund Manager"]
+                                  ? fund["Fund Manager"].toString()
+                                  : `Fund ${fundIndex + 1}`}
+                              </TableCell>
+                              {getFieldNames().map((field) => (
+                                <TableCell key={field}>
+                                  {fund[field] !== null &&
+                                  fund[field] !== undefined
+                                    ? typeof fund[field] === "boolean"
+                                      ? fund[field]
+                                        ? "Yes"
+                                        : "No"
+                                      : fund[field].toString()
+                                    : "N/A"}
+                                </TableCell>
+                              ))}
+                            </TableRow>
+                          ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="doc" className="mt-0">
+                <Card className="w-full overflow-hidden">
+                  <CardHeader className="flex flex-row items-center justify-between">
+                    <h3 className="text-xl font-semibold">Fund Details</h3>
+                    <Select
+                      onValueChange={(value) => {
+                        const index = parseInt(value, 10);
+                        setSelectedFundIndex(index);
+                      }}
+                      defaultValue="0"
+                    >
+                      <SelectTrigger className="w-[220px]">
+                        <SelectValue placeholder="Select a fund" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {docData.map((fundAnalysis, index) => (
+                          <SelectItem key={index} value={index.toString()}>
+                            {fundAnalysis.fund.general_information.name ||
+                              `Fund ${index + 1}`}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </CardHeader>
+                  <CardContent className="p-6">
+                    {selectedFund && (
+                      <div className="space-y-6">
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">
+                            General Information
+                          </h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="font-medium">Fund Name</p>
+                              <p>
+                                {selectedFund.fund.general_information.name ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Location</p>
+                              <p>
+                                {selectedFund.fund.general_information
+                                  .location || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Website</p>
+                              <p>
+                                {selectedFund.fund.general_information
+                                  .website || "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Primary Contact
+                          </h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="font-medium">Name</p>
+                              <p>
+                                {selectedFund.fund.primary_contact.name ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Position</p>
+                              <p>
+                                {selectedFund.fund.primary_contact.position ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Email</p>
+                              <p>
+                                {selectedFund.fund.primary_contact.email ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Fund Details
+                          </h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="font-medium">
+                                Currently Fundraising
+                              </p>
+                              <p>
+                                {selectedFund.fund.fund_details
+                                  .fundraising_status.actively_fundraising
+                                  ? "Yes"
+                                  : "No"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Fund Series</p>
+                              <p>
+                                {selectedFund.fund.fund_details
+                                  .fundraising_status.fund_series || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Target Size</p>
+                              <p>
+                                {selectedFund.fund.fund_details
+                                  .fundraising_status.target_size || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Management Fee</p>
+                              <p>
+                                {selectedFund.fund.fund_details
+                                  .fees_terms_economics.management_fee || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Carried Interest</p>
+                              <p>
+                                {selectedFund.fund.fund_details
+                                  .fees_terms_economics.carried_interest ||
+                                  "N/A"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Sector & Stage Focus
+                          </h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="font-medium">Sectors</p>
+                              <p>
+                                {selectedFund.fund.fund_details.sector_stage_focus.sectors.join(
+                                  ", "
+                                ) || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Stage Focus</p>
+                              <p>
+                                {selectedFund.fund.fund_details.sector_stage_focus.stage_focus.join(
+                                  ", "
+                                ) || "N/A"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Impact Investing</p>
+                              <p>
+                                {selectedFund.fund.fund_details
+                                  .sector_stage_focus.impact_investing
+                                  ? "Yes"
+                                  : "No"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {selectedFund.fund.track_record.portfolio_companies
+                          .length > 0 && (
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              Portfolio Companies (
+                              {
+                                selectedFund.fund.track_record
+                                  .portfolio_companies.length
+                              }
+                              )
+                            </h3>
+                            <div className="overflow-x-auto">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Company</TableHead>
+                                    <TableHead>Investment</TableHead>
+                                    <TableHead>Valuation</TableHead>
+                                    <TableHead>Stage</TableHead>
+                                    <TableHead>MOIC</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {selectedFund.fund.track_record.portfolio_companies.map(
+                                    (company, idx) => (
+                                      <TableRow key={idx}>
+                                        <TableCell className="font-medium">
+                                          {company.name || "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {company.amount_invested || "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {company.post_money_valuation ||
+                                            "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {company.stage_round || "N/A"}
+                                        </TableCell>
+                                        <TableCell>
+                                          {company.moic || "N/A"}
+                                        </TableCell>
+                                      </TableRow>
+                                    )
+                                  )}
+                                </TableBody>
+                              </Table>
+                            </div>
+                          </div>
+                        )}
+
+                        <div>
+                          <h3 className="text-lg font-semibold mb-2">
+                            Diversity Information
+                          </h3>
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <p className="font-medium">
+                                Minority (BIPOC) Partners
+                              </p>
+                              <p>
+                                {selectedFund.fund.diversity_information
+                                  .minority_partners
+                                  ? "Yes"
+                                  : "No"}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="font-medium">Female Partners</p>
+                              <p>
+                                {selectedFund.fund.diversity_information
+                                  .female_partners
+                                  ? "Yes"
+                                  : "No"}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        {selectedFund.fund.additional_data.fund_manager_bio && (
+                          <div>
+                            <h3 className="text-lg font-semibold mb-2">
+                              Fund Manager Bio
+                            </h3>
+                            <p>
+                              {
+                                selectedFund.fund.additional_data
+                                  .fund_manager_bio
+                              }
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
+          </div>
         )}
       </main>
       <LoadingPopup
