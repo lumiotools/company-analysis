@@ -2,13 +2,17 @@ from pypdf import PdfReader
 import pandas as pd
 import io
 import os
+import fitz  # PyMuPDF
+import pytesseract
+from pdf2image import convert_from_path
+from PIL import Image
 
 def extractContent(file_path: str):
     print("Extracting content from file:", file_path)
     
     try:
         if file_path.endswith(".pdf"):
-            return extractPdfContent(file_path)
+            return extract_text_from_pdf(file_path)
         elif file_path.endswith(".xlsx") or file_path.endswith(".xls"):
             return extractExcelContent(file_path)
         else:
@@ -47,3 +51,19 @@ def extractPdfContent(file_path: str):
     except Exception as e:
         print(f"Error extracting PDF content from {file_path}: {str(e)}")
         return ""
+    
+def extract_text_from_pdf(pdf_path: str):
+    text = ""
+    doc = fitz.open(pdf_path)
+    
+    for page in doc:
+        text += page.get_text("text")  # Extract text directly
+    
+    if text.strip():  
+        return text  # Return extracted text if available
+
+    # If no text, perform OCR on images
+    images = convert_from_path(pdf_path)  
+    ocr_text = "\n".join([pytesseract.image_to_string(img) for img in images])
+    
+    return ocr_text
