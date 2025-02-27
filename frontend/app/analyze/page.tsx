@@ -171,23 +171,71 @@ export default function AnalyzePage() {
   );
   const [excelData, setExcelData] = useState<FundData[]>([]);
   const [loading, setLoading] = useState(false);
+  const handleAnalysisLog = (): string | null => {
+    const fileManagerInstance =
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (document.getElementById("overview_file") as any)?.ej2_instances?.[0];
 
+    if (fileManagerInstance) {
+      const selectedItems = fileManagerInstance.selectedItems;
+
+      if (selectedItems && selectedItems.length > 0) {
+        console.log("Selected item:", selectedItems[0]);
+
+        if (selectedItems.length > 1) {
+          console.log(
+            "Multiple items selected. Only the first one will be processed."
+          );
+        }
+
+        return selectedItems[0]; // Return the directory name
+      } else {
+        console.log("No item selected");
+      }
+    } else {
+      console.log("FileManager instance not found");
+    }
+
+    return null; // Return null if no selection
+  };
   const handleAnalysisSubmit = async () => {
     setLoading(true);
+
     try {
+      const directoryName = handleAnalysisLog(); // Get the selected directory name
+
+      if (!directoryName) {
+        console.error("No directory selected.");
+        setLoading(false);
+        return;
+      }
+
       const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/api/analyze2`,
+        `${
+          process.env.NEXT_PUBLIC_API_URL
+        }/api/analyze?directory_name=${encodeURIComponent(directoryName)}`,
         {
           method: "POST",
         }
       );
+
       const result: ApiResponse = await response.json();
       if (result.success && result.excel) {
-        setExcelData(result.excel);
+        if (result.success && result.excel) {
+          setExcelData((prevData) => {
+            // If previous data exists, append new data
+            if (prevData && prevData.length > 0) {
+              return [...prevData, ...result.excel];
+            }
+            // Otherwise, just use the new data
+            return result.excel;
+          });
+        }
       }
     } catch (error) {
       console.error("Error fetching analysis:", error);
     }
+
     setLoading(false);
   };
 

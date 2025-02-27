@@ -1,5 +1,3 @@
-# combine_excel_analyses.py
-
 import json
 import os
 from typing import List, Dict, Any
@@ -40,21 +38,26 @@ def combine_excel_analyses(final_result_location: str) -> List[Dict[str, Any]]:
         # Use analyzeDocuments with the deduplication prompt
         print("Analyzing and deduplicating fund data...")
         result = analyzeDocuments(fund_doc, FUND_DATA_SYSTEM_PROMPT)
+        print("result:" , result)
         
-        # Extract the unique funds from the result
+        # Handle different result formats
         unique_funds = []
-        if isinstance(result, dict) and "analysis" in result:
-            unique_funds = result["analysis"]
+        if isinstance(result, dict):
+            if "analysis" in result and isinstance(result["analysis"], list):
+                unique_funds = result["analysis"]
+            else:
+                # If result is a single fund record, add it to the list
+                unique_funds = [result]
         elif isinstance(result, list):
             unique_funds = result
         
-        # Save the combined result
+        # Save the combined result - always save what we got even if it's just one record
         output_directory = os.path.dirname(final_result_location)
         output_path = os.path.join(output_directory, "combined_fund_data.json")
         with open(output_path, 'w') as f:
             json.dump({"success": True, "analysis": unique_funds}, f, indent=2)
         
-        print(f"Combined into {len(unique_funds)} unique fund records, saved to {output_path}")
+        print(f"Combined fund data saved to {output_path}")
         return unique_funds
         
     except Exception as e:
@@ -102,4 +105,4 @@ def extract_all_funds(result_data: Any, funds_list: List[Dict[str, Any]]) -> Non
 if __name__ == "__main__":
     final_result_location = "temp_uploads/89eb76fb-1954-4053-abd3-3da48633136d/final_result.json"
     funds = combine_excel_analyses(final_result_location)
-    print(f"Processed into {len(funds)} unique funds")
+    print(f"Processed {len(funds)} funds")

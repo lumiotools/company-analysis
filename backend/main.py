@@ -9,7 +9,7 @@ from services.combineDocAnalysis import combine_doc_analyses
 from services.comgineExcelAnalysis import combine_excel_analyses
 from services.analyzer import process_hierarchical_data
 from services.saveJosn import write_extracted_content_json
-from services.files import download_files, find_alpine_vc_files, listFiles, get_all_files
+from services.files import download_files, find_alpine_vc_files, get_directory_list, listFiles, get_all_files
 from services.extractContent import extractContent
 from services.analyzeDocuments import analyzeDocuments
 import os
@@ -33,27 +33,34 @@ app.add_middleware(
 )
 
 @app.post("/api/analyze")
-async def analyze_company():
+async def analyze_company(directory_name: str):
     folder_name = uuid.uuid4()
     str_folder_name = str(folder_name)  # Convert UUID to string right after creation
     
     try:
         # Get the list of files from the server
         files = listFiles()
-        all_file_urls = get_all_files(files)
+        # print("files",files)
+        # directory_name = "8-Bit Capital"
+        print("directory",str(directory_name))
+        target_dir = get_directory_list(files, str(directory_name))
+        
+
+        all_file_urls = get_all_files(target_dir)
+        # print("all file url",all_file_urls)
         
         # Download the files
         downloaded_files = download_files(all_file_urls, str_folder_name)  # Use string version
         print("Downloaded files:", downloaded_files)
         
-        # Rest of your code using str_folder_name
+        # # Rest of your code using str_folder_name
         result_location = write_extracted_content_json(str_folder_name)
         final_result_location = process_hierarchical_data(result_location, system_prompt_excel, system_prompt_doc)
         combinedExcelAnalysis = combine_excel_analyses(final_result_location)
         combinedDocAnalysis = combine_doc_analyses(final_result_location)
-        saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis, str_folder_name)
-        create_folder_and_upload_files(saved_files, 'docOutput')
-        
+        # saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis, str_folder_name)
+        # create_folder_and_upload_files(saved_files, 'docOutput')
+        # return JSONResponse(content={"success": True,files:files})
         return JSONResponse(content={"success": True, "excel": combinedExcelAnalysis, "doc": combinedDocAnalysis})
     
     except Exception as e:

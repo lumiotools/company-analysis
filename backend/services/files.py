@@ -222,6 +222,58 @@ def download_files(file_tuples, folder_name):
     
     return downloaded_files
 
+def find_directory_by_name_in_list(structure, target_name):
+    """
+    Find a directory with the given name in the list structure and return the list 
+    containing it along with the index of the directory in that list.
+    
+    Args:
+        structure (list or dict): The nested file system structure
+        target_name (str): The name of the directory to find
+        
+    Returns:
+        tuple: (containing_list, index) or (None, None) if not found
+    """
+    if isinstance(structure, list):
+        # Check each item in the list
+        for i, item in enumerate(structure):
+            # If the item is a dictionary with a 'directory' key matching the target
+            if isinstance(item, dict) and 'directory' in item and item['directory'] == target_name:
+                return structure, i
+            
+            # If it's a dictionary with 'directory' and 'files' keys, search in the 'files'
+            if isinstance(item, dict) and 'directory' in item and 'files' in item:
+                result, idx = find_directory_by_name_in_list(item['files'], target_name)
+                if result is not None:
+                    return result, idx
+                    
+    elif isinstance(structure, dict):
+        # If it has 'files', search within them
+        if 'files' in structure:
+            result, idx = find_directory_by_name_in_list(structure['files'], target_name)
+            if result is not None:
+                return result, idx
+                
+    return None, None
 
+def get_directory_list(structure, directory_name):
+    """
+    Takes a structure and directory name and returns a list containing only that directory.
+    
+    Args:
+        structure (list or dict): The directory structure
+        directory_name (str): Name of the directory to find
+        
+    Returns:
+        list or None: A list containing just the found directory or None if not found
+    """
+    # Find the containing list and index
+    containing_list, idx = find_directory_by_name_in_list(structure, directory_name)
+    
+    if containing_list is not None and idx is not None:
+        # Return a new list with just that item
+        return [containing_list[idx]]
+    
+    return None
 if __name__ == "__main__":
     listFiles()
