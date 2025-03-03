@@ -3,6 +3,7 @@ import os
 
 from prompts import DOC_DATA_SYSTEM_PROMPT
 from services.analyzeDocuments import analyzeDocuments
+from services.getProfileData import search_contactout
 
 
 def combine_doc_analyses(input_file_path):
@@ -134,6 +135,16 @@ def combine_doc_analyses(input_file_path):
         output_path = os.path.join(output_directory, "combined_doc_data.json")
         with open(output_path, 'w') as f:
             json.dump(structured_fund_data, f, indent=2)
+        
+        
+        try:
+            company = structured_fund_data["fund"]["general_information"]["name"]
+            name = structured_fund_data["fund"]["primary_contact"]["name"]
+            
+            user_data = search_contactout(name, [company])
+            structured_fund_data["fund"]["primary_contact"]["name"]["linkedin"] = dict(user_data["profiles"]).keys()[0].replace("\\","")
+        except Exception as e:
+            print(f"Error in search_contactout: {str(e)}")
         
         # Return the structured fund data
         return structured_fund_data

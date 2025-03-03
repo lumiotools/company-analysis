@@ -49,11 +49,3 @@ def search_contactout(name, companies):
     
     # Return the JSON response
     return response.json()
-
-# Example usage
-if __name__ == "__main__":
-    try:
-        results = search_contactout("Subhajit Hait", ["Stealth Startup"])
-        print(json.dumps(results, indent=2))
-    except Exception as e:
-        print(f"Error: {e}")
