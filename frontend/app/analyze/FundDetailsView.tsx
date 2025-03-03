@@ -181,7 +181,7 @@ const FundDetailsView: React.FC<FundDetailsViewProps> = ({
     setIsPrinting(true);
 
     if (portfolioDetailsRef.current) {
-      portfolioDetailsRef.current.open = true;
+      portfolioDetailsRef.current.open = false;
     }
     document.getElementById("portfolioName")?.classList.add("hidden");
 
