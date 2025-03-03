@@ -21,6 +21,7 @@ from services.saveDoc import save_multiple_analyses_to_docx
 import shutil
 import time
 from file_server.route import router as fileServerRouter
+from analysis.gemini import gemini_upload_files, gemini_analyze_files_excel, gemini_analyze_files_doc
 
 UPLOAD_DIR = "temp_uploads"
 
@@ -52,23 +53,45 @@ async def analyze_company(directory_name: str):
         
 
         all_file_urls = get_all_files(target_dir)
-        # print("all file url",all_file_urls)
+        print("all file url",all_file_urls)
         
         # Download the files
         downloaded_files = download_files(all_file_urls, str_folder_name)  # Use string version
         print("Downloaded files:", downloaded_files)
         
+        
+        final_files = [path.replace("\\","/") for path in downloaded_files if not ".docx" in path]
+        uploaded_files = gemini_upload_files( final_files)
+        
+        print("uploaded files",uploaded_files)
+        
+        # Analyze the files
+        
+        excel_response = gemini_analyze_files_excel( uploaded_files)
+        print("excel response",excel_response)
+        
+        doc_response = gemini_analyze_files_doc( uploaded_files)    
+        print("doc response",doc_response)
+        
+        end_time = time.time()  # End the timer
+        total_time = end_time - start_time  # Calculate execution time in seconds
+        
+        return JSONResponse(
+            content={"success": True, "excel": excel_response, "doc": doc_response, "time_taken_seconds": round(total_time, 2)}
+        )
+        
+        
+        
         # # Rest of your code using str_folder_name
-        result_location = write_extracted_content_json(str_folder_name)
-        final_result_location = process_hierarchical_data(result_location, system_prompt_excel, system_prompt_doc)
-        combinedExcelAnalysis = combine_excel_analyses(final_result_location)
-        combinedDocAnalysis = combine_doc_analyses(final_result_location)
+        # result_location = write_extracted_content_json(str_folder_name)
+        # final_result_location = process_hierarchical_data(result_location, system_prompt_excel, system_prompt_doc)
+        # combinedExcelAnalysis = combine_excel_analyses(final_result_location)
+        # combinedDocAnalysis = combine_doc_analyses(final_result_location)
         # saved_files = save_multiple_analyses_to_docx(combinedDocAnalysis, str_folder_name)
         # create_folder_and_upload_files(saved_files, 'docOutput')
         # return JSONResponse(content={"success": True,files:files})
-        end_time = time.time()  # End the timer
-        total_time = end_time - start_time  # Calculate execution time in seconds
-        return JSONResponse(content={"success": True, "title":directory_name ,"excel": combinedExcelAnalysis, "doc": combinedDocAnalysis,"time_taken_seconds": round(total_time, 2)})
+        
+        return JSONResponse(content={"success": True, "title":directory_name ,"excel": "combinedExcelAnalysis", "doc": "combinedDocAnalysis","time_taken_seconds": round(total_time, 2)})
     
     except Exception as e:
         return JSONResponse(content={"success": False, "message": str(e)}, status_code=500)

@@ -86,3 +86,22 @@ def extract_excel_content(file_path: str) -> str:
 
     except Exception as e:
         return f"Error extracting Excel content from {file_path}: {str(e)}"
+    
+def extract_excel_content_from_bytes(file) -> str:
+    try:
+        excel_file = pd.ExcelFile(file, engine="openpyxl")  # Efficient for .xlsx
+
+        with io.StringIO() as buffer:
+            for sheet_name in excel_file.sheet_names:
+                df = excel_file.parse(sheet_name)  # Read sheet
+                if df.empty:
+                    continue  # Skip empty sheets
+
+                buffer.write(f"Sheet: {sheet_name}\n\n")  # Add sheet name
+                df.to_csv(buffer, index=False)  # Convert DataFrame to CSV
+                buffer.write("\n\n")
+
+            return buffer.getvalue()  # Get full extracted content
+
+    except Exception as e:
+        print(f"Error extracting Excel content from bytes: {str(e)}")
