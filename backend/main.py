@@ -20,6 +20,7 @@ from services.saveExcel import save_to_excel
 from services.saveDoc import save_multiple_analyses_to_docx
 import shutil
 import time
+from file_server.route import router as fileServerRouter
 
 UPLOAD_DIR = "temp_uploads"
 
@@ -32,6 +33,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.include_router(fileServerRouter, prefix="/api/file-server")
 
 @app.post("/api/analyze")
 async def analyze_company(directory_name: str):
