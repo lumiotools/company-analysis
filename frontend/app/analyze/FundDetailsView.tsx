@@ -183,6 +183,7 @@ const FundDetailsView: React.FC<FundDetailsViewProps> = ({
     if (portfolioDetailsRef.current) {
       portfolioDetailsRef.current.open = true;
     }
+    document.getElementById("portfolioName")?.classList.add("hidden");
 
     setTimeout(async () => {
       const contentElement = document.getElementById("fund-details-content");
@@ -310,14 +311,14 @@ const FundDetailsView: React.FC<FundDetailsViewProps> = ({
         console.error("Error generating PDF:", error);
       } finally {
         setIsPrinting(false);
+        document.getElementById("portfolioName")?.classList.remove("hidden");
+
         if (portfolioDetailsRef.current) {
           portfolioDetailsRef.current.open = false;
         }
       }
     }, 100);
   };
-
-  // ... (rest of the component remains the same)
 
   return (
     <div className="space-y-8">
@@ -842,7 +843,10 @@ const FundDetailsView: React.FC<FundDetailsViewProps> = ({
 
                 <div className="mt-6">
                   <details className="group" ref={portfolioDetailsRef}>
-                    <summary className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800">
+                    <summary
+                      id="portfolioName"
+                      className="cursor-pointer text-sm font-medium text-blue-600 hover:text-blue-800"
+                    >
                       View Full Portfolio Details
                     </summary>
                     <div className="mt-4 space-y-8">

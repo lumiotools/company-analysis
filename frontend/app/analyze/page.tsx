@@ -413,7 +413,7 @@ export default function AnalyzePage() {
                 }}
                 uploadSettings={{
                   directoryUpload: true, // Enable folder (directory) upload
-                  maxFileSize: 100000000, // 100MB
+                  maxFileSize: 10000000000, // 100MB
                 }}
                 style={{
                   color: "red",
