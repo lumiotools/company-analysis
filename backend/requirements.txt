@@ -69,3 +69,4 @@ pdf2image
 pytesseract 
 pillow
 tiktoken
+aiofiles
