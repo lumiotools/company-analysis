@@ -20,7 +20,7 @@ const AnalysisProgress = ({ fundName = "8 Bit Capital" }) => {
   const extraStages = ["Compiling Analysis", "Preparing Final Results"];
 
   // Total duration in seconds (2.5 minutes)
-  const totalDuration = 150;
+  const totalDuration = 250;
   // Extra stage duration in seconds (30 seconds each)
   const extraStageDuration = 30;
 
@@ -130,8 +130,12 @@ const AnalysisProgress = ({ fundName = "8 Bit Capital" }) => {
         </div>
       </div>
 
+      <div className="flex justify-between items-center">
       <div className="text-xl font-medium text-gray-700">
         {`${minutes}m ${seconds}s`}
+      </div>
+
+      <p className="text-sm">Estimated time: 1-5m</p>
       </div>
 
       <div className="mt-6">
