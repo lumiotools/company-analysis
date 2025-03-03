@@ -30,7 +30,7 @@ def extractExcelContent(file_path: str):
         for sheet_name in excel_file.sheet_names:
             df = pd.read_excel(file_path, sheet_name=sheet_name)
             buffer = io.StringIO()
-            df.to_csv(buffer, index=False)
+            df.to_markdown(buffer, index=False)
             text += f"Sheet: {sheet_name}\n\n{buffer.getvalue()}\n\n"
         return text
     except Exception as e:

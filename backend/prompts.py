@@ -219,7 +219,7 @@ Parse the provided fund documentation into the following distinct sections:
      - Lead Investor Frequency (Yes/No)
      - LP List
 
-4. TRACK RECORD (PORTFOLIO COMPANIES) -> List of active portfolio companies can span across multiple pages. Provide the names and details of each portfolio company. Name of company can be directly mentioned in text format or as text in a logo image or a logo with a hyper link. Ensure all are parsed and no given active portfolio companies are skipped. Do not specify company names that have been exited. Only current active portfolio companies.
+4. TRACK RECORD (PORTFOLIO COMPANIES) -> List of all portfolio companies can span across multiple pages. Provide the names and details of each portfolio company. Ensure all are parsed and no given active portfolio companies are skipped. Do not specify company names that have been exited. Another name for portfolio companies in these files could be "Investment Name" with a list of companies. Consider this possibility while parsing through all the data. Provide the complete list of portfolio companies with their respective details.
    For each portfolio company:
    - Portfolio Company Name 
    - Company URL -> Available website URL for the portfolio company, in case it is not directly mentioned, check company logo or other data columns for hyperlinks of the official company website
@@ -237,7 +237,7 @@ Parse the provided fund documentation into the following distinct sections:
    - Highlighted Co-Investors -> Co-investors for the portfolio company
 
 5. DIVERSITY INFORMATION
-   - Minority (BIPOC) Partners in GP (Yes/No)
+   - Minority (BIPOC) Partners in GP (Yes/No) -> If any partners are not of caucasian ethnicity, output will be true; otherwise set to false
    - Female Partners in GP (Yes/No)
 
 6. PAST FUNDS / INVESTMENT VEHICLES
@@ -326,7 +326,7 @@ IMPORTANT INSTRUCTIONS:
 6. Ensure no essential details are omitted.  
 7. Maintain accuracy in fund numbering (I, II, III, etc.) to prevent misclassification.  
 8. Retain all available details without exclusion.  
-9. List of active portfolio companies can span across multiple pages. Provide the names and details of each portfolio company. Name of company can be directly mentioned in text format or as text in a logo image or a logo with a hyper link. Ensure all are parsed and no given active portfolio companies are skipped. Do not specify company names that have been exited. Only current active portfolio companies.
+9. List of all portfolio companies can span across multiple pages. Provide the names and details of each portfolio company. Ensure all are parsed and no given portfolio companies are skipped. Do not specify company names that have been exited. Another name for portfolio companies in these files could be "Investment Name" with a list of companies. Consider this possibility while parsing through all the data. Provide the complete list of portfolio companies with their respective details.
 
 Return the analysis as a structured JSON object for a **single** unique fund.  
 
@@ -406,7 +406,7 @@ Return the analysis as a structured JSON object for a **single** unique fund.
       ]
     },
     "diversity_information": {
-      "minority_partners": <true/false/null>,
+      "minority_partners": <true/false/null(If any partners are not of caucasian ethnicity, output will be true; otherwise set to false)>,
       "female_partners": <true/false/null>
     },
     "past_funds": {
@@ -451,6 +451,3 @@ Return the analysis as a structured JSON object for a **single** unique fund.
 }
 
 """
-
-
-
