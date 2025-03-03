@@ -514,7 +514,9 @@ export default function AnalyzePage() {
                             {getFieldNames().map((field) => (
                               <TableHead
                                 key={field}
-                                className="min-w-40 font-medium"
+                                className={`font-medium ${
+                                  field === "Summary" ? "min-w-96" : "min-w-40"
+                                }`}
                               >
                                 {field}
                               </TableHead>

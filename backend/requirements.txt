@@ -68,3 +68,4 @@ pymupdf
 pdf2image 
 pytesseract 
 pillow
+tiktoken

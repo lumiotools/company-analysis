@@ -122,14 +122,14 @@ Extract the following fields exactly as specified:
 - Summary -> Brief summary including the fund's founding year, location, investment philosophy, and types of companies it invests in
 - Fund Stage -> The latest identifiable fund stage as Fund I,II... etc(Stages are as follows - Fund I: pre-seed & seed, Fund II: Series A, Fund III: Series B, Fund IV: Series C and beyond, IPO, Exit)
 - Fund Size -> The latest identifiable size (exact value as provided, including currency symbol and denomination like $10M or €50M)
-- Invested to Date -> The latest identifiable total investment amount deployed
+- Invested to Date -> The latest identifiable total investment amount deployed. If not mentioned specifically, add up investments made across latest portfolio companies in latest identifiable stage.
 - Minimum Check Size -> The latest identifiable minimum investment amount per deal
 - # of Portfolio Companies -> Total number of portfolio companies in which the fund has invested
 - Stage Focus -> Primary investment stages the fund targets (e.g., Pre-Seed, Seed, Series A, Growth, Late Stage)
 - Sectors -> Specific sectors or industries the fund focuses on (e.g., AI/ML, B2B SaaS, FinTech, HealthTech, CleanTech)
 - Market Validated Outlier -> Whether the fund has had exceptional performance compared to peers (look for mentions of top-quartile returns, notable exits, or industry recognition)
-- Female Partner in Fund -> If any partners are female, provide their names; otherwise set to false
-- Minority (BIPOC) Partner in Fund -> If any partners are from Black, Indigenous, or People of Color backgrounds, provide their names; otherwise set to false
+- Female Partner in Fund -> If any partners are female, output ; otherwise set to false
+- Minority (BIPOC) Partner in Fund -> If any partners are not of caucasian ethnicity, output will be true; otherwise set to false
 
 Return the extracted data as a JSON object with the keys exactly as given above.
 If any field cannot be determined from the text, set its value to null.
@@ -149,9 +149,9 @@ Your output must follow this exact format without any additional keys or formatt
   "# of Portfolio Companies": "<value or null>",
   "Stage Focus": "<value or null>",
   "Sectors": "<value or null>",
-  "Market Validated Outlier": "<true/false/null or partner names>",
-  "Female Partner in Fund": "<true/false/null or partner names>",
-  "Minority (BIPOC) Partner in Fund": "<true/false/null or partner names>"
+  "Market Validated Outlier": "<value or null>",
+  "Female Partner in Fund": "<true/false/null>",
+  "Minority (BIPOC) Partner in Fund": "<true/false/null>"
 }
 
 Additional extraction guidelines:

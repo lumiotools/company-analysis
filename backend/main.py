@@ -65,7 +65,7 @@ async def analyze_company(directory_name: str):
         # return JSONResponse(content={"success": True,files:files})
         end_time = time.time()  # End the timer
         total_time = end_time - start_time  # Calculate execution time in seconds
-        return JSONResponse(content={"success": True, "excel": combinedExcelAnalysis, "doc": combinedDocAnalysis,"time_taken_seconds": round(total_time, 2)})
+        return JSONResponse(content={"success": True, "title":directory_name ,"excel": combinedExcelAnalysis, "doc": combinedDocAnalysis,"time_taken_seconds": round(total_time, 2)})
     
     except Exception as e:
         return JSONResponse(content={"success": False, "message": str(e)}, status_code=500)
