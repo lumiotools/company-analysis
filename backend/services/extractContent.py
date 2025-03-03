@@ -7,12 +7,25 @@ import pytesseract
 from pdf2image import convert_from_path
 from PIL import Image
 
+
+import os
+from llama_parse import LlamaParse
+from dotenv import load_dotenv
+load_dotenv()
+
+# Initialize the LlamaParse client
+parser = LlamaParse(
+    api_key=os.getenv("LLAMA_CLOUD_API_KEY"),  # Use os.getenv() not os.getenv[]
+    result_type="markdown"  # Options: "markdown", "text", or "elements"
+)
+
+
 def extractContent(file_path: str):
     print("Extracting content from file:", file_path)
     
     try:
         if file_path.endswith(".pdf"):
-            return extract_text_from_pdf(file_path)
+            return extract_text_pdf_llama_parser(file_path)
         elif file_path.endswith(".xlsx") or file_path.endswith(".xls"):
             return extract_excel_content(file_path)
         else:
@@ -51,6 +64,13 @@ def extractPdfContent(file_path: str):
     except Exception as e:
         print(f"Error extracting PDF content from {file_path}: {str(e)}")
         return ""
+    
+def extract_text_pdf_llama_parser(pdf_path: str):
+    documents = parser.load_data(pdf_path)
+    
+    text = documents[0].text
+    print(text)
+    return text
     
 def extract_text_from_pdf(pdf_path: str):
     text = ""

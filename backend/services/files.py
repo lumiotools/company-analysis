@@ -5,7 +5,7 @@ import json
 from urllib.parse import quote
 import concurrent.futures
 
-fileServer = "https://mdsv-file-server.onrender.com"
+fileServer = "https://company-analysis-y7dw.onrender.com"
 UPLOAD_DIR = "temp_uploads"
 MAX_CONCURRENT_DOWNLOADS = 5  # Set the maximum number of concurrent downloads
 
