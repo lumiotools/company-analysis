@@ -123,10 +123,10 @@ const AnalysisProgress = ({ fundName = "8 Bit Capital" }) => {
       <div className="relative w-full h-4 bg-blue-100 rounded-md overflow-hidden mb-2">
         <div
           className="absolute top-0 left-0 h-full bg-gradient-to-r from-blue-400 to-blue-600 transition-all duration-1000 ease-linear"
-          style={{ width: `${initialTimerComplete ? 100 : progress}%` }}
+          style={{ width: `${initialTimerComplete ? 99 : progress}%` }}
         />
         <div className="absolute top-0 right-0 h-full flex items-center pr-2 text-white font-medium text-sm">
-          {initialTimerComplete ? 100 : progress.toFixed(0)}%
+          {initialTimerComplete ? 99 : progress.toFixed(0)}%
         </div>
       </div>
 
