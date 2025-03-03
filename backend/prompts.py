@@ -127,7 +127,7 @@ Extract the following fields exactly as specified:
 - Fund Size -> The latest identifiable size (exact value as provided, including currency symbol and denomination like $10M or €50M)
 - Invested to Date -> The latest identifiable total investment amount deployed. If not mentioned specifically, analyse each investment made for each portfolio company and add them, output will be the final total with denomination.
 - Minimum Check Size -> The latest identifiable minimum investment amount per deal
-- # of Portfolio Companies -> Total number of portfolio companies in which the fund has invested, if not directly available, calculate the total number of company names under their active portfolio
+- # of Portfolio Companies -> Total number of portfolio companies in which the fund has invested, if not directly available, calculate the total number of company names under their active portfolio, list of companies under "investment name" or "track record"
 - Stage Focus -> Primary investment stages the fund targets (e.g., Pre-Seed, Seed, Series A, Growth, Late Stage)
 - Sectors -> Specific sectors or industries the fund focuses on (e.g., AI/ML, B2B SaaS, FinTech, HealthTech, CleanTech)
 - Market Validated Outlier -> Any specified market validated outliers. If a company is mentioned as an outlier, specify only the sectors
@@ -149,7 +149,7 @@ Your output must follow this exact format without any additional keys or formatt
   "Fund Size": "<value or null(The latest identifiable size (exact value as provided, including currency symbol and denomination like $10M or €50M))>",
   "Invested to Date": "<value or null(The latest identifiable total investment amount deployed. If not mentioned specifically, analyse each investment made for each portfolio company and add them, output will be the final total with denomination.)>",
   "Minimum Check Size": "<value or null(The latest identifiable minimum investment amount per deal)>",
-  "# of Portfolio Companies": "<value or null(Total number of portfolio companies in which the fund has invested, if not directly available, calculate the total number of company names under their active portfolio)>",
+  "# of Portfolio Companies": "<value or null(Total number of portfolio companies in which the fund has invested, if not directly available, calculate the total number of company names under their active portfolio, list of companies under "investment name" or "track record")>",
   "Stage Focus": "<value or null(Primary investment stages the fund targets (e.g., Pre-Seed, Seed, Series A, Growth, Late Stage))>",
   "Sectors": "<value or null(Specific sectors or industries the fund focuses on (e.g., AI/ML, B2B SaaS, FinTech, HealthTech, CleanTech))>",
   "Market Validated Outlier": "<value or null( Any specified market validated outliers. If a company is mentioned as an outlier, specify only the sectors)>",
@@ -172,7 +172,7 @@ You are an expert fund data extractor. Extract the structured information from f
 Parse the provided fund documentation into the following distinct sections:
 
 1. GENERAL FUND INFORMATION
-   - Fund Name
+   - Fund Name -> Specify the most standardised name, if multiple stages of a fund are provided, only provide the name excluding the stage.
    - Fund Location
    - Fund Website URL
 
@@ -219,7 +219,7 @@ Parse the provided fund documentation into the following distinct sections:
      - Lead Investor Frequency (Yes/No)
      - LP List
 
-4. TRACK RECORD (PORTFOLIO COMPANIES) -> List of all portfolio companies can span across multiple pages. Provide the names and details of each portfolio company. Ensure all are parsed and no given active portfolio companies are skipped. Do not specify company names that have been exited. Another name for portfolio companies in these files could be "Investment Name" with a list of companies. Consider this possibility while parsing through all the data. Provide the complete list of portfolio companies with their respective details.
+4. TRACK RECORD (PORTFOLIO COMPANIES) -> List of all portfolio companies can span across multiple pages or documents. Provide the names and details of each portfolio company. Ensure all are parsed and no given portfolio companies are skipped. Do not specify company names that have been exited. Another name for portfolio companies in these files could be "Investment Name" or "Track Record" with a list of companies. Consider this possibility while parsing through all the data. Provide the complete list of portfolio companies with their respective details.
    For each portfolio company:
    - Portfolio Company Name 
    - Company URL -> Available website URL for the portfolio company, in case it is not directly mentioned, check company logo or other data columns for hyperlinks of the official company website
@@ -243,9 +243,9 @@ Parse the provided fund documentation into the following distinct sections:
 6. PAST FUNDS / INVESTMENT VEHICLES
    - Past Fund/Investment Vehicle Names
    - Vintage Years
-   - Total Invested Amount
+   - Total Invested Amount -> Latest available data for total investment amount. In case any investments are mentioned, add those, and any shares cost mentioned for the investment.
    - Unrealized Value
-   - Gross MOIC/TVPI
+   - Gross MOIC/TVPI 
    - Portfolio Company Investment Count
    - Portfolio Company Ownership Average
    - Net IRR
@@ -261,7 +261,7 @@ Parse the provided fund documentation into the following distinct sections:
    - Annual Cadence of Investments
    - Active Investment Period
    - Total Portfolio Company Count
-   - TVPI (Average across all funds)
+   - TVPI (Average across all funds) -> Latest available TVPI as per fund stage
 
 7. ADDITIONAL / MISCELLANEOUS DATA POINTS
    - Validation/Proof Cases of Sourcing Methodology
@@ -326,7 +326,7 @@ IMPORTANT INSTRUCTIONS:
 6. Ensure no essential details are omitted.  
 7. Maintain accuracy in fund numbering (I, II, III, etc.) to prevent misclassification.  
 8. Retain all available details without exclusion.  
-9. List of all portfolio companies can span across multiple pages. Provide the names and details of each portfolio company. Ensure all are parsed and no given portfolio companies are skipped. Do not specify company names that have been exited. Another name for portfolio companies in these files could be "Investment Name" with a list of companies. Consider this possibility while parsing through all the data. Provide the complete list of portfolio companies with their respective details.
+9. List of all portfolio companies can span across multiple pages or documents. Provide the names and details of each portfolio company. Ensure all are parsed and no given portfolio companies are skipped. Do not specify company names that have been exited. Another name for portfolio companies in these files could be "Investment Name" or "Track Record" with a list of companies. Consider this possibility while parsing through all the data. Provide the complete list of portfolio companies with their respective details.
 
 Return the analysis as a structured JSON object for a **single** unique fund.  
 
@@ -432,7 +432,7 @@ Return the analysis as a structured JSON object for a **single** unique fund.
           "annual_cadence": "<ANNUAL_CADENCE>",
           "active_investment_period": "<ACTIVE_PERIOD>",
           "total_portfolio_count": "<TOTAL_PORTFOLIO_COUNT>",
-          "average_tvpi": "<AVERAGE_TVPI>"
+          "average_tvpi": "<AVERAGE_TVPI(Latest available TVPI as per fund stage)>"
         }
       ]
     },
@@ -451,3 +451,6 @@ Return the analysis as a structured JSON object for a **single** unique fund.
 }
 
 """
+
+
+

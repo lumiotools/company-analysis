@@ -140,11 +140,16 @@ def combine_doc_analyses(input_file_path):
         try:
             company = structured_fund_data["fund"]["general_information"]["name"]
             name = structured_fund_data["fund"]["primary_contact"]["name"]
-            
-            user_data = search_contactout(name, [company])
-            structured_fund_data["fund"]["primary_contact"]["name"]["linkedin"] = dict(user_data["profiles"]).keys()[0].replace("\\","")
+            print(f"Company: {company}, Name: {name}")
+            user_data = search_contactout(name, [company.split(" ")[0]])
+            linkedins = list(dict(user_data["profiles"]).keys())
+            print(f"Linkedins: {linkedins}")
+            structured_fund_data["fund"]["primary_contact"]["linkedin"] = linkedins[0] if len(linkedins) > 0 else "Not Found"
         except Exception as e:
-            print(f"Error in search_contactout: {str(e)}")
+            try:
+                structured_fund_data["fund"]["primary_contact"]["linkedin"] = "Not Found"
+            except Exception as e:
+                print(f"Error in search_contactout: {str(e)}")
         
         # Return the structured fund data
         return structured_fund_data
