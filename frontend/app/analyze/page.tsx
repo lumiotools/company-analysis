@@ -36,6 +36,7 @@ import {
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AnalysisProgress from "@/components/AnalysisProgress";
+import FundDetailsView from "./FundDetailsView";
 
 interface AnalysisResult {
   company_name: string;
@@ -78,7 +79,7 @@ interface AnalysisResult {
 
 // Updated interface for the API response
 // Interface for fund analysis document structure
-interface FundAnalysis {
+export interface FundAnalysis {
   fund: {
     general_information: {
       name: string;
@@ -199,6 +200,14 @@ export default function AnalyzePage() {
 
   const selectedFund =
     docData && docData.length > 0 ? docData[selectedFundIndex] : null;
+  const handleFundUpdate = (updatedFund: FundAnalysis) => {
+    // Create a new array with the updated fund
+    const updatedDocData = [...docData];
+    updatedDocData[selectedFundIndex] = updatedFund;
+
+    // Update the state with the new array
+    setDocData(updatedDocData);
+  };
   const handleAnalysisLog = (): string | null => {
     const fileManagerInstance =
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -404,7 +413,7 @@ export default function AnalyzePage() {
                 }}
                 uploadSettings={{
                   directoryUpload: true, // Enable folder (directory) upload
-                  maxFileSize: 100000000, // 100MB
+                  maxFileSize: 10000000000, // 100MB
                 }}
                 style={{
                   color: "red",
@@ -578,239 +587,10 @@ export default function AnalyzePage() {
                   </CardHeader>
                   <CardContent className="p-6">
                     {selectedFund && (
-                      <div className="space-y-6">
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            General Information
-                          </h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="font-medium">Fund Name</p>
-                              <p>
-                                {selectedFund.fund.general_information.name ||
-                                  "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Location</p>
-                              <p>
-                                {selectedFund.fund.general_information
-                                  .location || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Website</p>
-                              <p>
-                                {selectedFund.fund.general_information
-                                  .website || "N/A"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Primary Contact
-                          </h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="font-medium">Name</p>
-                              <p>
-                                {selectedFund.fund.primary_contact.name ||
-                                  "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Position</p>
-                              <p>
-                                {selectedFund.fund.primary_contact.position ||
-                                  "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Email</p>
-                              <p>
-                                {selectedFund.fund.primary_contact.email ||
-                                  "N/A"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Fund Details
-                          </h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="font-medium">
-                                Currently Fundraising
-                              </p>
-                              <p>
-                                {selectedFund.fund.fund_details
-                                  .fundraising_status.actively_fundraising
-                                  ? "Yes"
-                                  : "No"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Fund Series</p>
-                              <p>
-                                {selectedFund.fund.fund_details
-                                  .fundraising_status.fund_series || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Target Size</p>
-                              <p>
-                                {selectedFund.fund.fund_details
-                                  .fundraising_status.target_size || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Management Fee</p>
-                              <p>
-                                {selectedFund.fund.fund_details
-                                  .fees_terms_economics.management_fee || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Carried Interest</p>
-                              <p>
-                                {selectedFund.fund.fund_details
-                                  .fees_terms_economics.carried_interest ||
-                                  "N/A"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Sector & Stage Focus
-                          </h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="font-medium">Sectors</p>
-                              <p>
-                                {selectedFund.fund.fund_details.sector_stage_focus.sectors.join(
-                                  ", "
-                                ) || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Stage Focus</p>
-                              <p>
-                                {selectedFund.fund.fund_details.sector_stage_focus.stage_focus.join(
-                                  ", "
-                                ) || "N/A"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Impact Investing</p>
-                              <p>
-                                {selectedFund.fund.fund_details
-                                  .sector_stage_focus.impact_investing
-                                  ? "Yes"
-                                  : "No"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {selectedFund.fund.track_record.portfolio_companies
-                          .length > 0 && (
-                          <div>
-                            <h3 className="text-lg font-semibold mb-2">
-                              Portfolio Companies (
-                              {
-                                selectedFund.fund.track_record
-                                  .portfolio_companies.length
-                              }
-                              )
-                            </h3>
-                            <div className="overflow-x-auto">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Company</TableHead>
-                                    <TableHead>Investment</TableHead>
-                                    <TableHead>Valuation</TableHead>
-                                    <TableHead>Stage</TableHead>
-                                    <TableHead>MOIC</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {selectedFund.fund.track_record.portfolio_companies.map(
-                                    (company, idx) => (
-                                      <TableRow key={idx}>
-                                        <TableCell className="font-medium">
-                                          {company.name || "N/A"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {company.amount_invested || "N/A"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {company.post_money_valuation ||
-                                            "N/A"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {company.stage_round || "N/A"}
-                                        </TableCell>
-                                        <TableCell>
-                                          {company.moic || "N/A"}
-                                        </TableCell>
-                                      </TableRow>
-                                    )
-                                  )}
-                                </TableBody>
-                              </Table>
-                            </div>
-                          </div>
-                        )}
-
-                        <div>
-                          <h3 className="text-lg font-semibold mb-2">
-                            Diversity Information
-                          </h3>
-                          <div className="grid grid-cols-2 gap-4">
-                            <div>
-                              <p className="font-medium">
-                                Minority (BIPOC) Partners
-                              </p>
-                              <p>
-                                {selectedFund.fund.diversity_information
-                                  .minority_partners
-                                  ? "Yes"
-                                  : "No"}
-                              </p>
-                            </div>
-                            <div>
-                              <p className="font-medium">Female Partners</p>
-                              <p>
-                                {selectedFund.fund.diversity_information
-                                  .female_partners
-                                  ? "Yes"
-                                  : "No"}
-                              </p>
-                            </div>
-                          </div>
-                        </div>
-
-                        {selectedFund.fund.additional_data.fund_manager_bio && (
-                          <div>
-                            <h3 className="text-lg font-semibold mb-2">
-                              Fund Manager Bio
-                            </h3>
-                            <p>
-                              {
-                                selectedFund.fund.additional_data
-                                  .fund_manager_bio
-                              }
-                            </p>
-                          </div>
-                        )}
-                      </div>
+                      <FundDetailsView
+                        fundData={selectedFund}
+                        onUpdate={handleFundUpdate}
+                      />
                     )}
                   </CardContent>
                 </Card>

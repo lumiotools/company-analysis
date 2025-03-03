@@ -1,10 +1,10 @@
-import { Button } from "@/components/ui/button"
-import { ArrowRightIcon } from 'lucide-react'
-import Link from "next/link"
+import { Button } from "@/components/ui/button";
+import { ArrowRightIcon } from "lucide-react";
+import Link from "next/link";
 
 export function Hero() {
   return (
-    <section className="relative h-[75vh] flex items-center overflow-hidden">
+    <section className="relative h-[calc(100vh-0px)] w-full flex items-center justify-center overflow-hidden">
       <div
         className="absolute inset-0 bg-cover bg-center"
         style={{
@@ -14,7 +14,8 @@ export function Hero() {
       <div
         className="absolute inset-0"
         style={{
-          backgroundImage: "linear-gradient(to right, rgba(0,33,68,0.9), rgba(0,33,68,0.7))",
+          backgroundImage:
+            "linear-gradient(to right, rgba(0,33,68,0.9), rgba(0,33,68,0.7))",
         }}
       />
 
@@ -24,8 +25,8 @@ export function Hero() {
             AI-Powered Company Intelligence
           </h1>
           <p className="text-xl md:text-2xl text-gray-200 mb-8 max-w-2xl">
-            Transform your company documents into actionable insights with our
-            advanced AI analysis platform.
+            Upload company documents to our AI analysis platform, which extracts
+            and maps key information to deliver valuable insights.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <Button
@@ -34,7 +35,7 @@ export function Hero() {
               asChild
             >
               <Link href="/analyze">
-                Start Free Analysis
+                Start Analysis
                 <ArrowRightIcon className="ml-2 h-5 w-5" />
               </Link>
             </Button>
@@ -42,5 +43,5 @@ export function Hero() {
         </div>
       </div>
     </section>
-  )
+  );
 }

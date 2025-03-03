@@ -70,3 +70,4 @@ pytesseract
 pillow
 tiktoken
 aiofiles
+deepgram-sdk

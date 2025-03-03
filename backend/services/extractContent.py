@@ -1,3 +1,4 @@
+from services.transcribe import transcribe_audio_file
 from pypdf import PdfReader
 import pandas as pd
 import io
@@ -15,6 +16,11 @@ def extractContent(file_path: str):
             return extract_text_from_pdf(file_path)
         elif file_path.endswith(".xlsx") or file_path.endswith(".xls"):
             return extract_excel_content(file_path)
+        elif file_path.lower().endswith(('.mp3', '.mp4', '.wav', '.ogg', '.m4a', 
+                          '.flac', '.aac', '.wma', '.amr', '.aiff', 
+                          '.opus', '.webm', '.avi', '.mov', '.mkv')):
+            # Use the transcription helper function
+            return transcribe_audio_file(file_path)
         else:
             print(f"Warning: Unsupported file format for file {file_path}. Skipping extraction.")
             return ""

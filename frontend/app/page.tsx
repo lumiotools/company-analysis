@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Header } from "@/components/common/header";
 import { Hero } from "@/components/home/hero";
 import { Features } from "@/components/home/features";
@@ -7,15 +8,12 @@ import { CTASection } from "@/components/home/cta";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="flex flex-col h-screen overflow-hidden">
       <Header />
-      <main>
+      <main className="flex-grow overflow-hidden">
         <Hero />
-        <Features />
-        <ProcessFlow />
-        <CTASection />
       </main>
       <Footer />
     </div>
-  )
+  );
 }
